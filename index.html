@@ -1,76 +1,99 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MotoBox — BoxPvP</title>
-
+  <title>MOTOBOX — BoxPvP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --bg:#05070f;
-      --bg2:#070a16;
+      --bg:#04040a;
+      --bg2:#07010a;
       --card: rgba(255,255,255,.05);
       --stroke: rgba(255,255,255,.10);
-      --text:#eaf0ff;
-      --muted:#aab6d8;
-      --red:#ff2a55;
+      --text:#edf2ff;
+      --muted:#a8b2d2;
+      --red:#ff224f;
       --blue:#2b6bff;
-      --shadow: 0 18px 60px rgba(0,0,0,.55);
-      --r: 18px;
+      --shadow: 0 18px 70px rgba(0,0,0,.65);
+      --r:18px;
     }
 
     *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
     body{
       margin:0;
       font-family:Montserrat,system-ui,-apple-system,Segoe UI,Roboto,Arial;
       color:var(--text);
       background:
-        radial-gradient(900px 500px at 15% 10%, rgba(43,107,255,.26), transparent 60%),
-        radial-gradient(900px 500px at 85% 10%, rgba(255,42,85,.22), transparent 60%),
-        radial-gradient(700px 500px at 50% 90%, rgba(43,107,255,.12), transparent 60%),
+        radial-gradient(1000px 600px at 15% 15%, rgba(43,107,255,.18), transparent 60%),
+        radial-gradient(1000px 600px at 85% 15%, rgba(255,34,79,.16), transparent 60%),
+        radial-gradient(800px 600px at 50% 95%, rgba(255,34,79,.10), transparent 60%),
         linear-gradient(180deg, var(--bg), var(--bg2));
+      min-height:100vh;
     }
 
     a{color:inherit; text-decoration:none}
-    .wrap{max-width:1150px; margin:0 auto; padding:22px;}
+    .wrap{max-width:1200px; margin:0 auto; padding:22px;}
 
     /* TOPBAR */
     .topbar{
       position:sticky; top:0; z-index:50;
       backdrop-filter: blur(12px);
-      background: linear-gradient(to bottom, rgba(5,7,15,.82), rgba(5,7,15,.40));
+      background: linear-gradient(to bottom, rgba(4,4,10,.88), rgba(4,4,10,.45));
       border-bottom:1px solid rgba(255,255,255,.08);
     }
     .topbar-inner{
-      max-width:1150px; margin:0 auto;
+      max-width:1200px; margin:0 auto;
       padding:14px 22px;
       display:flex; align-items:center; justify-content:space-between; gap:12px;
     }
-    .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.8px;}
+    .brand{display:flex; align-items:center; gap:10px; font-weight:900; letter-spacing:1px;}
     .dot{
       width:10px; height:10px; border-radius:999px;
       background: linear-gradient(90deg, var(--red), var(--blue));
-      box-shadow: 0 0 18px rgba(255,42,85,.55);
+      box-shadow: 0 0 18px rgba(255,34,79,.55);
     }
-    nav{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;}
-    .navlink{
+
+    .tabs{
+      display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;
+    }
+    .tabbtn{
       padding:10px 12px;
       border-radius:999px;
-      border:1px solid transparent;
-      color:var(--muted);
-      font-weight:700;
-      transition:.15s;
-      font-size:13px;
-    }
-    .navlink:hover{
-      color:var(--text);
-      border-color: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.10);
       background: rgba(255,255,255,.04);
+      color:var(--muted);
+      font-weight:800;
+      font-size:13px;
+      cursor:pointer;
+      transition:.15s;
+      user-select:none;
+    }
+    .tabbtn:hover{
+      color:var(--text);
+      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.14);
+      transform: translateY(-1px);
+    }
+    .tabbtn.active{
+      color:var(--text);
+      border-color: rgba(255,34,79,.35);
+      background: linear-gradient(90deg, rgba(255,34,79,.22), rgba(43,107,255,.14));
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+
+    /* PANELS */
+    .panel{
+      display:none;
+      animation: fade .18s ease-out;
+    }
+    .panel.active{display:block;}
+    @keyframes fade{
+      from{opacity:0; transform: translateY(4px);}
+      to{opacity:1; transform: translateY(0);}
     }
 
     /* HERO */
@@ -81,39 +104,53 @@
       border:1px solid rgba(255,255,255,.10);
       box-shadow: var(--shadow);
       background:
-        linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.82)),
+        radial-gradient(900px 500px at 20% 20%, rgba(255,34,79,.18), transparent 60%),
+        radial-gradient(900px 500px at 80% 20%, rgba(43,107,255,.18), transparent 60%),
+        linear-gradient(rgba(0,0,0,.45), rgba(0,0,0,.85)),
         url("https://i.postimg.cc/yxYbKmfs/317f19aa-6408-416c-a12c-8bfca61fec52.png");
-      background-size:cover;
+      background-size: cover;
       background-position:center;
-      min-height: 460px;
+      min-height: 520px;
       display:flex;
+      position:relative;
+    }
+    .hero::after{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        repeating-linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.04) 1px, transparent 1px, transparent 6px);
+      opacity:.18;
+      pointer-events:none;
+      mix-blend-mode: overlay;
     }
     .hero-inner{
       width:100%;
-      padding:44px 26px;
+      padding:46px 26px;
       display:grid;
-      grid-template-columns: 1.3fr .7fr;
+      grid-template-columns: 1.2fr .8fr;
       gap:18px;
       align-items:end;
+      position:relative;
+      z-index:1;
     }
-    @media(max-width: 900px){
+    @media(max-width: 940px){
       .hero-inner{grid-template-columns:1fr; align-items:start;}
     }
-
     .h-title{
-      font-size: clamp(36px, 4.6vw, 70px);
-      font-weight: 800;
+      font-size: clamp(38px, 5vw, 74px);
+      font-weight: 900;
       letter-spacing: 2px;
       margin:0;
-      text-shadow: 0 0 22px rgba(255,42,85,.25);
+      text-shadow: 0 0 26px rgba(255,34,79,.25);
     }
     .h-sub{
       margin:10px 0 0;
-      color: rgba(234,240,255,.90);
+      color: rgba(237,242,255,.90);
       font-weight:600;
-      line-height:1.55;
-      max-width:720px;
+      line-height:1.6;
+      max-width:740px;
     }
+
     .chips{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;}
     .chip{
       padding:9px 12px;
@@ -121,18 +158,26 @@
       background: rgba(255,255,255,.07);
       border:1px solid rgba(255,255,255,.10);
       color: var(--muted);
-      font-weight:700;
+      font-weight:800;
       font-size:13px;
     }
 
-    .panel{
-      background: rgba(5,7,15,.72);
-      border:1px solid rgba(255,255,255,.12);
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.10);
       border-radius: var(--r);
       padding:16px;
-      box-shadow: 0 16px 40px rgba(0,0,0,.35);
+      box-shadow: 0 12px 35px rgba(0,0,0,.35);
     }
-    .panel h3{margin:0 0 10px; font-size:14px; color:var(--muted); font-weight:800; letter-spacing:.4px;}
+    .card h3{
+      margin:0 0 10px;
+      font-size:14px;
+      color:var(--muted);
+      font-weight:900;
+      letter-spacing:.4px;
+      text-transform:uppercase;
+    }
+
     .ip-row{
       display:flex; gap:10px; align-items:center; justify-content:space-between;
       background: rgba(255,255,255,.06);
@@ -140,22 +185,23 @@
       border-radius: 14px;
       padding:12px;
     }
-    .ip{font-weight:800; letter-spacing:.6px; font-size:15px;}
+    .ip{font-weight:900; letter-spacing:.6px; font-size:15px;}
     .btn{
       display:inline-flex; align-items:center; justify-content:center;
       padding:10px 12px;
       border-radius: 12px;
       border:1px solid rgba(255,255,255,.10);
-      background: linear-gradient(90deg, rgba(255,42,85,.28), rgba(43,107,255,.24));
+      background: linear-gradient(90deg, rgba(255,34,79,.28), rgba(43,107,255,.22));
       color: var(--text);
-      font-weight:800;
+      font-weight:900;
       cursor:pointer;
       transition:.15s;
       user-select:none;
-      min-width: 92px;
+      min-width: 120px;
     }
     .btn:hover{transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0,0,0,.35);}
     .btn:active{transform: translateY(0px);}
+
     .tiny{font-size:12px; color:var(--muted); margin-top:10px; line-height:1.45;}
     code{
       background: rgba(255,255,255,.06);
@@ -165,35 +211,17 @@
       color:#dbe6ff;
     }
 
-    /* SECTIONS */
-    section{padding:70px 0;}
-    .sec-title{
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      margin: 0 0 16px;
-    }
-    .sec-sub{color:var(--muted); margin:0 0 22px; line-height:1.6;}
-
+    /* GRID */
     .grid{
       display:grid;
       grid-template-columns: repeat(12, 1fr);
       gap:14px;
-    }
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid rgba(255,255,255,.10);
-      border-radius: var(--r);
-      padding:16px;
-      box-shadow: 0 12px 35px rgba(0,0,0,.30);
+      margin-top:14px;
     }
     .span-6{grid-column: span 6;}
-    .span-5{grid-column: span 5;}
-    .span-7{grid-column: span 7;}
     .span-12{grid-column: span 12;}
-    @media(max-width: 900px){
-      .span-6,.span-5,.span-7{grid-column: span 12;}
-      section{padding:55px 0;}
+    @media(max-width: 940px){
+      .span-6{grid-column: span 12;}
     }
 
     /* SOCIALS */
@@ -204,20 +232,28 @@
       border-radius:14px;
       border:1px solid rgba(255,255,255,.10);
       background: rgba(255,255,255,.05);
-      font-weight:800;
+      font-weight:900;
       transition:.15s;
     }
     .linkbtn.primary{
-      background: linear-gradient(90deg, rgba(255,42,85,.35), rgba(43,107,255,.32));
+      background: linear-gradient(90deg, rgba(255,34,79,.30), rgba(43,107,255,.22));
     }
     .linkbtn:hover{transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0,0,0,.25);}
 
-    /* DONATE GRID */
+    /* DONATE */
+    .sec-title{
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      margin: 0 0 10px;
+    }
+    .sec-sub{color:var(--muted); margin:0 0 18px; line-height:1.6;}
+
     .ranks{
       display:grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap:16px;
-      margin-top:6px;
+      margin-top:12px;
     }
     .rank{
       background: rgba(255,255,255,.045);
@@ -226,11 +262,20 @@
       padding:14px;
       transition:.18s;
       overflow:hidden;
+      position:relative;
+    }
+    .rank::before{
+      content:"";
+      position:absolute; inset:-60px;
+      background: radial-gradient(circle at 30% 20%, rgba(255,34,79,.18), transparent 45%),
+                  radial-gradient(circle at 70% 20%, rgba(43,107,255,.16), transparent 45%);
+      opacity:.35;
+      pointer-events:none;
     }
     .rank:hover{
       transform: translateY(-6px);
       border-color: rgba(90,124,255,.55);
-      box-shadow: 0 0 40px rgba(90,124,255,.22);
+      box-shadow: 0 0 40px rgba(90,124,255,.20);
     }
     .rank.special:hover{
       border-color: rgba(255,70,70,.65);
@@ -243,33 +288,39 @@
       border-radius: 14px;
       border:1px solid rgba(255,255,255,.10);
       background: rgba(0,0,0,.20);
+      position:relative;
+      z-index:1;
     }
-    .rank h3{
+    .rank h4{
       margin:12px 0 6px;
       font-size:18px;
-      font-weight:800;
+      font-weight:900;
       letter-spacing:1px;
+      position:relative;
+      z-index:1;
     }
-    .price{color:var(--muted); font-weight:700; font-size:13px;}
-    .buyrow{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      justify-content:space-between;
-      margin-top:12px;
+    .price{
+      color:var(--muted);
+      font-weight:800;
+      font-size:13px;
+      position:relative;
+      z-index:1;
     }
     .buy{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      padding:10px 12px;
+      padding:11px 12px;
       border-radius:12px;
       border:1px solid rgba(255,255,255,.10);
-      background: linear-gradient(90deg, rgba(255,42,85,.30), rgba(43,107,255,.26));
+      background: linear-gradient(90deg, rgba(255,34,79,.30), rgba(43,107,255,.22));
       font-weight:900;
       letter-spacing:.3px;
       transition:.15s;
       width:100%;
+      margin-top:12px;
+      position:relative;
+      z-index:1;
     }
     .buy:hover{transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0,0,0,.35);}
 
@@ -286,10 +337,10 @@
       margin-bottom:6px;
     }
     .news-title{font-weight:900}
-    .news-date{font-size:12px; color:var(--muted); font-weight:800;}
+    .news-date{font-size:12px; color:var(--muted); font-weight:900;}
 
     .footer{
-      padding:25px 0 10px;
+      padding:22px 0 10px;
       text-align:center;
       color: var(--muted);
       font-size:12px;
@@ -301,206 +352,227 @@
 
 <body>
 
-  <!-- NAV -->
   <div class="topbar">
     <div class="topbar-inner">
       <div class="brand"><span class="dot"></span><span>MOTOBOX</span></div>
-      <nav>
-        <a class="navlink" href="#home">Home</a>
-        <a class="navlink" href="#socials">Socials</a>
-        <a class="navlink" href="#donate">Donate</a>
-        <a class="navlink" href="#news">News</a>
-      </nav>
+
+      <!-- ВКЛАДКИ (без прокрутки) -->
+      <div class="tabs">
+        <button class="tabbtn active" data-tab="home">Главная</button>
+        <button class="tabbtn" data-tab="socials">Соцсети</button>
+        <button class="tabbtn" data-tab="donate">Донат</button>
+        <button class="tabbtn" data-tab="news">Новости</button>
+      </div>
     </div>
   </div>
 
   <div class="wrap">
 
-    <!-- HOME -->
-    <section id="home" style="padding-top:22px;">
+    <!-- ГЛАВНАЯ -->
+    <div class="panel active" id="tab-home">
       <div class="hero">
         <div class="hero-inner">
           <div>
             <h1 class="h-title">MOTOBOX</h1>
-            <p class="h-sub">Best BoxPvP — fast fights, clean design, and a dark vibe. Join and show your skill.</p>
+            <p class="h-sub">
+              Лучший BoxPvP — быстрые файты, чистый баланс и тёмная атмосфера.
+              Залетай и докажи, что ты топ.
+            </p>
+
             <div class="chips">
               <span class="chip">BoxPvP</span>
-              <span class="chip">Events</span>
-              <span class="chip">Kits</span>
-              <span class="chip">Donates</span>
+              <span class="chip">Арена</span>
+              <span class="chip">Ивенты</span>
+              <span class="chip">Киты</span>
             </div>
           </div>
 
-          <div class="panel">
-            <h3>Server IP</h3>
+          <div class="card">
+            <h3>Айпи сервера</h3>
             <div class="ip-row">
               <div class="ip" id="ipText">motobox.polit.day</div>
-              <div class="btn" id="copyBtn">Copy</div>
-              <div style="margin-top:15px;text-align:center;">
-  <img src="https://api.mcsrvstat.us/2/motobox.polit.day" style="max-width:100%;border-radius:12px;">
-</div>
-
-           </div>
-            <div class="tiny">
-              Minecraft: <code>Multiplayer → Add Server → IP</code><br>
-              Press <b>Copy</b> to copy IP.
+              <div class="btn" id="copyBtn">Скопировать</div>
             </div>
+
+            <div class="tiny">
+              Minecraft: <code>Сетевая игра → Добавить сервер → Айпи</code>
+            </div>
+
+            <!-- ОНЛАЙН / СТАТУС -->
+            <div style="margin-top:14px;">
+              <img
+                src="https://api.mcsrvstat.us/2/motobox.polit.day"
+                alt="Статус сервера"
+                style="width:100%; border-radius:14px; border:1px solid rgba(255,255,255,.10);"
+              />
+              <div class="tiny">Если не грузит — значит сервис временно тупит. Обнови страницу.</div>
+            </div>
+
           </div>
         </div>
       </div>
-    </section>
-
-    <!-- SOCIALS -->
-    <section id="socials">
-      <h2 class="sec-title">Socials</h2>
-      <p class="sec-sub">Replace the links with your Discord / Telegram / TikTok / YouTube.</p>
 
       <div class="grid">
-        <div class="card span-7">
-          <div style="font-weight:900; letter-spacing:.3px; color:var(--muted);">Join the community</div>
-          <div style="font-size:26px; font-weight:900; margin-top:8px;">MotoBox Community</div>
-          <div style="color:var(--muted); margin-top:8px; line-height:1.6;">
-            Updates, giveaways, staff applications — everything is there.
+        <div class="card span-6">
+          <h3>О сервере</h3>
+          <div style="color:var(--muted); line-height:1.7;">
+            • Быстрый BoxPvP<br>
+            • Нормальные киты и баланс<br>
+            • Донат без имбы (можно настроить)<br>
+            • Комьюнити + ивенты<br>
           </div>
+        </div>
+        <div class="card span-6">
+          <h3>Сайт</h3>
+          <div style="color:var(--muted); line-height:1.7;">
+            Домен: <b style="color:var(--text)">motobox.pp.ua</b><br>
+            Айпи: <b style="color:var(--text)">motobox.polit.day</b><br>
+            Всё редактируется прямо в <code>index.html</code>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <!-- СОЦСЕТИ -->
+    <div class="panel" id="tab-socials">
+      <h2 class="sec-title">Соцсети</h2>
+      <p class="sec-sub">Вставь свои ссылки (Discord / Telegram и т.д.)</p>
+
+      <div class="grid">
+        <div class="card span-12">
+          <h3>Ссылки</h3>
           <div class="actions">
-            <!-- REPLACE href="#" -->
+            <!-- ЗАМЕНИ href="#" -->
             <a class="linkbtn primary" href="#" target="_blank">Discord</a>
             <a class="linkbtn" href="#" target="_blank">Telegram</a>
             <a class="linkbtn" href="#" target="_blank">TikTok</a>
             <a class="linkbtn" href="#" target="_blank">YouTube</a>
           </div>
-
-          <div class="tiny">Tip: just replace <code>href="#"</code> with your link.</div>
-        </div>
-
-        <div class="card span-5">
-          <div style="font-weight:900; letter-spacing:.3px; color:var(--muted);">Info</div>
-          <div style="margin-top:10px; line-height:1.8;">
-            ✅ Mode: <b>BoxPvP</b><br>
-            ✅ IP: <b>motobox.polit.day</b><br>
-            ✅ Website: <b>motobox.pp.ua</b><br>
-            <span style="color:var(--muted)">You can edit these anytime.</span>
-          </div>
+          <div class="tiny">Просто замени <code>href="#"</code> на свои ссылки.</div>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- DONATE -->
-    <section id="donate">
-      <h2 class="sec-title">Donate</h2>
-      <p class="sec-sub">Click “Buy” — it will open Discord (you can put your donate-shop link later).</p>
+    <!-- ДОНАТ -->
+    <div class="panel" id="tab-donate">
+      <h2 class="sec-title">Донат-привилегии</h2>
+      <p class="sec-sub">Нажми «Купить» — откроется Discord (поставь свою ссылку).</p>
 
-      <!-- PUT YOUR DISCORD INVITE HERE -->
+      <!-- ВСТАВЬ СЮДА СВОЙ ДИСКОРД ИНВАЙТ -->
       <script>
-        const DISCORD_LINK = "#"; // put your discord invite here
+        const DISCORD_LINK = "#"; // например: https://discord.gg/xxxxx
       </script>
 
       <div class="ranks">
         <div class="rank">
-          <img src="https://postimg.cc/5H6pYVXV" alt="Nomad">
-          <h3>Nomad</h3>
+          <img src="https://i.postimg.cc/fTGTzCdK/Znimok-ekrana-2026-02-18-031115.png" alt="Nomad">
+          <h4>Nomad</h4>
           <div class="price">59 грн / 150 ₽</div>
-          <div class="buyrow">
-            <a class="buy" href="#" onclick="this.href=DISCORD_LINK" target="_blank">Buy</a>
-          </div>
+          <a class="buy" href="#" onclick="this.href=DISCORD_LINK" target="_blank">Купить</a>
         </div>
 
         <div class="rank">
-          <img src="https://postimg.cc/SX3dcv9Q" alt="Guardian">
-          <h3>Guardian</h3>
+          <img src="https://i.postimg.cc/0y75bSGc/Znimok-ekrana-2026-02-18-031122.png" alt="Guardian">
+          <h4>Guardian</h4>
           <div class="price">119 грн / 300 ₽</div>
-          <div class="buyrow">
-            <a class="buy" href="#" onclick="this.href=DISCORD_LINK" target="_blank">Buy</a>
-          </div>
+          <a class="buy" href="#" onclick="this.href=DISCORD_LINK" target="_blank">Купить</a>
         </div>
 
         <div class="rank">
-          <img src="https://postimg.cc/f3pCYrdm" alt="Phantom">
-          <h3>Phantom</h3>
+          <img src="https://i.postimg.cc/P51fPDbK/Znimok-ekrana-2026-02-18-031129.png" alt="Phantom">
+          <h4>Phantom</h4>
           <div class="price">199 грн / 500 ₽</div>
-          <div class="buyrow">
-            <a class="buy" href="#" onclick="this.href=DISCORD_LINK" target="_blank">Buy</a>
-          </div>
+          <a class="buy" href="#" onclick="this.href=DISCORD_LINK" target="_blank">Купить</a>
         </div>
 
         <div class="rank">
-          <img src="https://postimg.cc/34GB1FjZ" alt="Mythic">
-          <h3>Mythic</h3>
+          <img src="https://i.postimg.cc/Gmv3HDPj/Znimok-ekrana-2026-02-18-031138.png" alt="Mythic">
+          <h4>Mythic</h4>
           <div class="price">319 грн / 800 ₽</div>
-          <div class="buyrow">
-            <a class="buy" href="#" onclick="this.href=DISCORD_LINK" target="_blank">Buy</a>
-          </div>
+          <a class="buy" href="#" onclick="this.href=DISCORD_LINK" target="_blank">Купить</a>
         </div>
 
         <div class="rank">
-          <img src="https://postimg.cc/q6dG56QD" alt="Overlord">
-          <h3>Overlord</h3>
+          <img src="https://i.postimg.cc/FH0F7Sb0/Znimok-ekrana-2026-02-18-031146.png" alt="Overlord">
+          <h4>Overlord</h4>
           <div class="price">479 грн / 1200 ₽</div>
-          <div class="buyrow">
-            <a class="buy" href="#" onclick="this.href=DISCORD_LINK" target="_blank">Buy</a>
-          </div>
+          <a class="buy" href="#" onclick="this.href=DISCORD_LINK" target="_blank">Купить</a>
         </div>
 
         <div class="rank">
-          <img src="https://postimg.cc/LgMVbgNm" alt="Immortal">
-          <h3>Immortal</h3>
+          <img src="https://i.postimg.cc/3x2rdGjC/Znimok-ekrana-2026-02-18-031154.png" alt="Immortal">
+          <h4>Immortal</h4>
           <div class="price">799 грн / 2000 ₽</div>
-          <div class="buyrow">
-            <a class="buy" href="#" onclick="this.href=DISCORD_LINK" target="_blank">Buy</a>
-          </div>
+          <a class="buy" href="#" onclick="this.href=DISCORD_LINK" target="_blank">Купить</a>
         </div>
 
         <div class="rank special">
-          <img src="https://postimg.cc/YLfxK2s8" alt="Custom">
-          <h3>Custom</h3>
+          <img src="https://i.postimg.cc/Jzj7GX33/Znimok-ekrana-2026-02-18-031214.png" alt="Custom">
+          <h4>Custom</h4>
           <div class="price">300 грн / 750 ₽</div>
-          <div class="buyrow">
-            <a class="buy" href="#" onclick="this.href=DISCORD_LINK" target="_blank">Buy</a>
-          </div>
+          <a class="buy" href="#" onclick="this.href=DISCORD_LINK" target="_blank">Купить</a>
         </div>
       </div>
 
       <div class="tiny" style="margin-top:14px;">
-        If avatars don’t show: open each postimg link → copy <b>Direct link</b> (ends with .png) → replace in <code>src="..."</code>.
+        Если хочешь — сделаю “окно покупки” (popup) вместо перехода.
       </div>
-    </section>
+    </div>
 
-    <!-- NEWS -->
-    <section id="news">
-      <h2 class="sec-title">News</h2>
-      <p class="sec-sub">To post news: edit the <code>NEWS</code> list in the code.</p>
+    <!-- НОВОСТИ -->
+    <div class="panel" id="tab-news">
+      <h2 class="sec-title">Новости</h2>
+      <p class="sec-sub">Чтобы добавить новость — измени список <code>NEWS</code> в коде.</p>
 
-      <div class="card span-12">
+      <div class="card">
+        <h3>Обновления</h3>
         <div class="news" id="newsList"></div>
       </div>
-    </section>
+    </div>
 
-    <div class="footer">© MotoBox — BoxPvP server</div>
+    <div class="footer">© MotoBox — BoxPvP</div>
   </div>
 
   <script>
-    // COPY IP
+    // Переключение вкладок (без прокрутки)
+    const btns = document.querySelectorAll(".tabbtn");
+    const panels = {
+      home: document.getElementById("tab-home"),
+      socials: document.getElementById("tab-socials"),
+      donate: document.getElementById("tab-donate"),
+      news: document.getElementById("tab-news")
+    };
+
+    function openTab(name){
+      Object.values(panels).forEach(p => p.classList.remove("active"));
+      btns.forEach(b => b.classList.remove("active"));
+      document.getElementById("tab-"+name).classList.add("active");
+      document.querySelector('.tabbtn[data-tab="'+name+'"]').classList.add("active");
+    }
+
+    btns.forEach(b => b.addEventListener("click", ()=> openTab(b.dataset.tab)));
+
+    // Копирование IP
     const copyBtn = document.getElementById("copyBtn");
     const ipText = document.getElementById("ipText").innerText;
 
     copyBtn.addEventListener("click", async () => {
       try{
         await navigator.clipboard.writeText(ipText);
-        copyBtn.textContent = "Copied!";
-        setTimeout(()=> copyBtn.textContent = "Copy", 1200);
+        copyBtn.textContent = "Скопировано!";
+        setTimeout(()=> copyBtn.textContent = "Скопировать", 1200);
       }catch(e){
-        alert("Copy failed. Copy manually: " + ipText);
+        alert("Не получилось скопировать. Скопируй вручную: " + ipText);
       }
     });
 
-    // NEWS (edit here)
+    // Новости (редактируй тут)
     const NEWS = [
-      { date:"2026-02-18", title:"MotoBox website update", text:"We updated the site + ranks section. Join Discord for buy & support." },
-      { date:"2026-02-17", title:"Server soon", text:"Arena polish, kits balance, and launch soon." }
+      { date:"2026-02-18", title:"Сайт обновлён", text:"Добавлены вкладки без прокрутки + донат с аватарками + статус/онлайн." },
+      { date:"2026-02-17", title:"Скоро старт", text:"Готовим арену, баланс и киты. Следи за обновами в Discord." }
     ];
 
-    // Render
+    // Рендер новостей
     const newsList = document.getElementById("newsList");
     NEWS.sort((a,b)=> (a.date < b.date ? 1 : -1)).forEach(item=>{
       const div = document.createElement("div");
@@ -518,4 +590,3 @@
 
 </body>
 </html>
-
