@@ -1,1000 +1,175 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TeleLike — HTML Messenger</title>
-  <style>
-    :root{
-      --bg:#0b1220;
-      --panel:#111a2b;
-      --panel2:#0f1726;
-      --text:#eaf0ff;
-      --muted:#9fb0da;
-      --line:rgba(255,255,255,.08);
+<meta charset="UTF-8">
+<title>Mini Telegram</title>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
-      --accent:#4c7dff;
-      --accent2:#2ee59d;
+<style>
 
-      --bubbleMe: rgba(76,125,255,.18);
-      --bubbleOther: rgba(255,255,255,.04);
+body{
+font-family:Arial;
+background:#0b1220;
+color:white;
+margin:0;
+}
 
-      --shadow: 0 18px 48px rgba(0,0,0,.45);
-      --r:18px;
-      --r2:26px;
+#auth,#chat{
+max-width:600px;
+margin:auto;
+padding:20px;
+}
 
-      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-    }
+input{
+width:100%;
+padding:10px;
+margin:5px 0;
+}
 
-    /* THEMES */
-    [data-theme="blue"]{
-      --accent:#4c7dff; --accent2:#2ee59d;
-      --bubbleMe: rgba(76,125,255,.18);
-    }
-    [data-theme="purple"]{
-      --accent:#8a5cff; --accent2:#ff6bd6;
-      --bubbleMe: rgba(138,92,255,.18);
-    }
-    [data-theme="green"]{
-      --accent:#2ee59d; --accent2:#77d6ff;
-      --bubbleMe: rgba(46,229,157,.16);
-    }
-    [data-theme="red"]{
-      --accent:#ff5c7a; --accent2:#ffa84c;
-      --bubbleMe: rgba(255,92,122,.16);
-    }
+button{
+padding:10px;
+background:#4c7dff;
+color:white;
+border:none;
+cursor:pointer;
+}
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:var(--font);
-      color:var(--text);
-      background:
-        radial-gradient(900px 520px at 15% 10%, color-mix(in srgb, var(--accent) 25%, transparent), transparent 60%),
-        radial-gradient(900px 520px at 85% 0%, color-mix(in srgb, var(--accent2) 18%, transparent), transparent 55%),
-        var(--bg);
-      overflow:hidden;
-    }
-    button,input,textarea{font-family:inherit}
-    .wrap{height:100%; display:grid; place-items:center; padding:18px;}
+#messages{
+height:300px;
+overflow:auto;
+border:1px solid #333;
+padding:10px;
+margin:10px 0;
+}
 
-    /* AUTH */
-    .auth{
-      width:min(980px,100%);
-      min-height:560px;
-      display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap:16px;
-      border:1px solid var(--line);
-      border-radius:var(--r2);
-      background: rgba(255,255,255,.03);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .authL{
-      padding:30px;
-      background: linear-gradient(180deg, rgba(17,26,43,.95), rgba(11,18,32,.95));
-      position:relative;
-    }
-    .brand{display:flex; gap:12px; align-items:center;}
-    .logo{
-      width:46px;height:46px;border-radius:16px;
-      background: conic-gradient(from 200deg, var(--accent), var(--accent2), var(--accent));
-      box-shadow: 0 14px 30px color-mix(in srgb, var(--accent) 25%, transparent);
-    }
-    .brand h1{margin:0;font-size:18px}
-    .brand p{margin:2px 0 0; color:var(--muted); font-size:12px}
-    .hero{margin-top:20px; max-width:520px}
-    .hero h2{
-      margin:0 0 10px;
-      font-size:40px; line-height:1.05;
-      letter-spacing:-.6px;
-    }
-    .hero h2 span{
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      -webkit-background-clip:text;
-      background-clip:text;
-      color:transparent;
-    }
-    .hero p{margin:0; color:var(--muted); line-height:1.6; font-size:14px}
-    .chips{margin-top:16px; display:flex; gap:10px; flex-wrap:wrap}
-    .chip{
-      font-size:12px;
-      padding:8px 10px;
-      border:1px solid var(--line);
-      border-radius:999px;
-      background: rgba(255,255,255,.03);
-    }
+.user{
+cursor:pointer;
+padding:5px;
+border-bottom:1px solid #333;
+}
 
-    .authR{
-      padding:22px;
-      background: linear-gradient(180deg, rgba(15,23,38,.95), rgba(17,26,43,.95));
-      border-left:1px solid var(--line);
-      display:flex; flex-direction:column; justify-content:center;
-    }
-    .tabs{
-      display:flex; gap:10px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.03);
-      border-radius:14px;
-      padding:6px;
-      margin-bottom:12px;
-    }
-    .tab{
-      flex:1;
-      border:0;
-      background:transparent;
-      color:var(--muted);
-      padding:10px 12px;
-      border-radius:10px;
-      font-weight:800;
-      cursor:pointer;
-      transition:.2s;
-    }
-    .tab.active{
-      color:var(--text);
-      background: color-mix(in srgb, var(--accent) 18%, transparent);
-      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 24%, transparent);
-    }
-    .card{
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.03);
-      border-radius: var(--r);
-      padding:16px;
-    }
-    .field{display:flex; flex-direction:column; gap:7px; margin:12px 0}
-    label{font-size:12px; color:var(--muted)}
-    input[type="text"], input[type="password"]{
-      width:100%;
-      padding:12px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background: rgba(5,8,16,.55);
-      color:var(--text);
-      outline:none;
-    }
-    input:focus{
-      border-color: color-mix(in srgb, var(--accent) 65%, transparent);
-      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent);
-    }
-    .row{display:flex; gap:10px}
-    .row > *{flex:1}
-    .btn{
-      border:0;
-      padding:12px 14px;
-      border-radius:12px;
-      cursor:pointer;
-      font-weight:900;
-      color:var(--text);
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      box-shadow: 0 14px 30px color-mix(in srgb, var(--accent) 22%, transparent);
-      transition:.2s;
-    }
-    .btn:hover{transform: translateY(-1px)}
-    .btn.ghost{
-      background: transparent;
-      border:1px solid var(--line);
-      box-shadow:none;
-    }
-    .toast{
-      margin-top:10px;
-      font-size:12px;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.04);
-      display:none;
-    }
-    .toast.show{display:block}
-    .toast.ok{border-color: color-mix(in srgb, var(--accent2) 40%, transparent)}
-    .toast.err{border-color: rgba(255,92,122,.4)}
-    .hint{margin-top:10px; font-size:12px; color:var(--muted); line-height:1.45}
-
-    .avaPick{
-      display:flex; align-items:center; gap:12px;
-      padding:12px;
-      border:1px dashed rgba(255,255,255,.14);
-      border-radius:14px;
-      background: rgba(255,255,255,.02);
-    }
-    .ava{
-      width:44px;height:44px;border-radius:16px;
-      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 40%, transparent),
-                                      color-mix(in srgb, var(--accent2) 30%, transparent));
-      border:1px solid rgba(255,255,255,.10);
-      overflow:hidden;
-      flex:0 0 auto;
-    }
-    .ava img{width:100%;height:100%;object-fit:cover;display:block}
-    .mini{font-size:12px; color:var(--muted)}
-    .selectTheme{
-      display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;
-    }
-    .themeBtn{
-      width:44px;height:34px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      cursor:pointer;
-      background: rgba(255,255,255,.03);
-      position:relative;
-      overflow:hidden;
-    }
-    .themeBtn::before{
-      content:"";
-      position:absolute; inset:0;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      opacity:.9;
-    }
-
-    /* APP */
-    .app{
-      width:min(1200px,100%);
-      height:min(780px, 100%);
-      display:grid;
-      grid-template-columns: 360px 1fr;
-      gap:14px;
-      border:1px solid var(--line);
-      border-radius:var(--r2);
-      background: rgba(255,255,255,.03);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .sidebar{
-      background: linear-gradient(180deg, rgba(17,26,43,.96), rgba(11,18,32,.96));
-      border-right:1px solid var(--line);
-      display:flex; flex-direction:column;
-    }
-    .topbar{
-      padding:14px;
-      border-bottom:1px solid var(--line);
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
-    .me{
-      display:flex; align-items:center; gap:10px; min-width:0;
-    }
-    .me .ava{width:40px;height:40px}
-    .me .name{font-weight:900; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-    .me .sub{font-size:12px; color:var(--muted)}
-    .actions{display:flex; gap:8px}
-    .iconBtn{
-      width:36px;height:36px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.03);
-      color:var(--text);
-      cursor:pointer;
-      display:grid; place-items:center;
-    }
-    .search{
-      padding:12px 14px;
-      border-bottom:1px solid var(--line);
-      display:flex; gap:10px;
-    }
-    .search input{flex:1}
-    .list{padding:10px; overflow:auto}
-    .item{
-      display:flex; gap:12px; align-items:center;
-      padding:12px;
-      border-radius:16px;
-      cursor:pointer;
-      border:1px solid transparent;
-      transition:.15s;
-    }
-    .item:hover{background: rgba(255,255,255,.03)}
-    .item.active{
-      background: color-mix(in srgb, var(--accent) 14%, transparent);
-      border-color: color-mix(in srgb, var(--accent) 22%, transparent);
-    }
-    .item .ava{width:44px;height:44px}
-    .item .info{min-width:0; flex:1}
-    .item .title{margin:0; font-weight:900; font-size:13px}
-    .item .last{margin-top:3px; font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-
-    .main{
-      background: radial-gradient(900px 520px at 70% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),
-                  linear-gradient(180deg, rgba(15,23,38,.95), rgba(11,18,32,.95));
-      display:flex; flex-direction:column;
-    }
-    .chatHead{
-      padding:14px;
-      border-bottom:1px solid var(--line);
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
-    .peer{display:flex; gap:10px; align-items:center; min-width:0}
-    .peer .ava{width:40px;height:40px}
-    .peer .title{font-weight:900; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-    .peer .sub{font-size:12px; color:var(--muted)}
-    .badge{
-      font-size:11px;
-      padding:6px 8px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.03);
-      color: rgba(234,240,255,.9);
-    }
-    .msgs{
-      flex:1; overflow:auto; padding:16px;
-      display:flex; flex-direction:column; gap:10px;
-    }
-    .empty{
-      flex:1; display:grid; place-items:center;
-      color:var(--muted); text-align:center; padding:24px;
-    }
-    .rowMsg{display:flex; gap:10px}
-    .rowMsg.me{justify-content:flex-end}
-    .bubble{
-      max-width:min(560px,82%);
-      padding:10px 12px;
-      border-radius:16px;
-      border:1px solid var(--line);
-      background: var(--bubbleOther);
-      white-space:pre-wrap;
-      word-break:break-word;
-      font-size:13px;
-      line-height:1.35;
-    }
-    .rowMsg.me .bubble{
-      background: var(--bubbleMe);
-      border-color: color-mix(in srgb, var(--accent) 22%, transparent);
-    }
-    .meta{
-      margin-top:6px;
-      font-size:11px;
-      color: rgba(234,240,255,.72);
-      display:flex; gap:10px; justify-content:space-between;
-    }
-    .composer{
-      padding:12px 14px;
-      border-top:1px solid var(--line);
-      display:flex; gap:10px; align-items:center;
-      background: rgba(255,255,255,.02);
-    }
-    textarea{
-      flex:1;
-      resize:none;
-      height:44px;
-      max-height:120px;
-      padding:12px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background: rgba(5,8,16,.52);
-      color:var(--text);
-      outline:none;
-    }
-    textarea:focus{
-      border-color: color-mix(in srgb, var(--accent) 65%, transparent);
-      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent);
-    }
-    .send{
-      width:44px;height:44px;border-radius:14px;
-      border:0; cursor:pointer; font-weight:900;
-      color:var(--text);
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      box-shadow: 0 14px 30px color-mix(in srgb, var(--accent) 20%, transparent);
-    }
-    .send:disabled, textarea:disabled{opacity:.45; cursor:not-allowed}
-
-    /* MODAL */
-    .modalBg{
-      display:none;
-      position:fixed; inset:0;
-      background: rgba(0,0,0,.58);
-      backdrop-filter: blur(10px);
-      padding:16px;
-    }
-    .modal{
-      max-width:520px;
-      margin: 7vh auto;
-      border:1px solid var(--line);
-      border-radius:22px;
-      background: rgba(17,26,43,.96);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .modalTop{
-      padding:14px 14px 12px;
-      border-bottom:1px solid var(--line);
-      display:flex; align-items:center; justify-content:space-between;
-    }
-    .modalTop b{font-size:14px}
-    .modalBody{padding:14px}
-    .close{width:36px;height:36px}
-
-    @media (max-width: 980px){
-      body{overflow:auto}
-      .wrap{place-items:stretch}
-      .auth{grid-template-columns:1fr; min-height:auto}
-      .app{grid-template-columns:1fr; height:auto; min-height:720px}
-      .sidebar{min-height: 360px}
-    }
-    ::-webkit-scrollbar{height:10px;width:10px}
-    ::-webkit-scrollbar-thumb{background: rgba(255,255,255,.08); border-radius:999px}
-    ::-webkit-scrollbar-track{background: transparent}
-  </style>
+</style>
 </head>
 
 <body>
-<div class="wrap" id="root">
 
-  <!-- AUTH -->
-  <section class="auth" id="auth">
-    <div class="authL">
-      <div class="brand">
-        <div class="logo"></div>
-        <div>
-          <h1>TeleLike</h1>
-          <p>HTML-мессенджер в стиле Telegram (локально)</p>
-        </div>
-      </div>
+<div id="auth">
 
-      <div class="hero">
-        <h2>Чат с <span>регистрацией</span> и <span>поиском</span>.</h2>
-        <p>
-          В этой версии всё хранится в браузере. Пользователи и чаты будут видны
-          только на этом устройстве/браузере.
-        </p>
-        <div class="chips">
-          <span class="chip">Регистрация/Вход</span>
-          <span class="chip">Поиск пользователей</span>
-          <span class="chip">Личные чаты</span>
-          <span class="chip">Смена ника/авы</span>
-          <span class="chip">Темы интерфейса</span>
-        </div>
+<h2>Регистрация</h2>
 
-        <div class="hint" style="margin-top:18px">
-          Если нужно «настоящий Telegram» между разными людьми — нужен сервер.
-        </div>
-      </div>
-    </div>
+<input id="ruser" placeholder="username">
+<input id="rpass" placeholder="password">
+<button onclick="register()">register</button>
 
-    <div class="authR">
-      <div class="tabs">
-        <button class="tab active" id="tabLogin">Вход</button>
-        <button class="tab" id="tabReg">Регистрация</button>
-      </div>
+<h2>Вход</h2>
 
-      <div class="card">
-        <!-- LOGIN -->
-        <form id="loginForm">
-          <div class="field">
-            <label>Ник</label>
-            <input id="loginUser" type="text" placeholder="Tema" required>
-          </div>
-          <div class="field">
-            <label>Пароль</label>
-            <input id="loginPass" type="password" placeholder="••••" required>
-          </div>
-          <div class="row">
-            <button class="btn" type="submit">Войти</button>
-            <button class="btn ghost" type="button" id="demo">Демо</button>
-          </div>
-          <div class="toast" id="loginToast"></div>
-        </form>
+<input id="luser">
+<input id="lpass">
+<button onclick="login()">login</button>
 
-        <!-- REGISTER -->
-        <form id="regForm" style="display:none">
-          <div class="field">
-            <label>Ник (уникальный)</label>
-            <input id="regUser" type="text" placeholder="Никнейм" required>
-          </div>
-          <div class="field">
-            <label>Пароль (мин 4)</label>
-            <input id="regPass" type="password" placeholder="••••" required>
-          </div>
+</div>
 
-          <div class="field">
-            <label>Аватар (необязательно)</label>
-            <div class="avaPick">
-              <div class="ava"><img id="regAvaPrev" style="display:none" alt=""></div>
-              <div style="flex:1">
-                <div style="font-weight:900;font-size:13px">Загрузить аву</div>
-                <div class="mini">PNG/JPG/WebP (до 2.5MB)</div>
-              </div>
-              <input id="regAva" type="file" accept="image/*" hidden>
-              <button class="btn ghost" type="button" id="pickRegAva">Выбрать</button>
-            </div>
-          </div>
+<div id="chat" style="display:none">
 
-          <button class="btn" type="submit" style="width:100%">Создать аккаунт</button>
-          <div class="toast" id="regToast"></div>
+<h2>Пользователи</h2>
+<div id="users"></div>
 
-          <div class="hint">
-            Темы можно менять уже в приложении (в профиле).
-          </div>
-        </form>
-      </div>
-    </div>
-  </section>
+<h2>Чат</h2>
 
-  <!-- APP -->
-  <section class="app" id="app" style="display:none">
-    <aside class="sidebar">
-      <div class="topbar">
-        <div class="me">
-          <div class="ava"><img id="meAva" style="display:none" alt=""></div>
-          <div style="min-width:0">
-            <div class="name" id="meName">User</div>
-            <div class="sub">online</div>
-          </div>
-        </div>
-        <div class="actions">
-          <button class="iconBtn" id="openProfile" title="Профиль">👤</button>
-          <button class="iconBtn" id="logout" title="Выйти">⎋</button>
-        </div>
-      </div>
+<div id="messages"></div>
 
-      <div class="search">
-        <input id="userSearch" type="text" placeholder="Поиск пользователей…">
-        <button class="iconBtn" id="newChat" title="Новый чат">＋</button>
-      </div>
-
-      <div class="list" id="list"></div>
-    </aside>
-
-    <main class="main">
-      <div class="chatHead">
-        <div class="peer">
-          <div class="ava"><img id="peerAva" style="display:none" alt=""></div>
-          <div style="min-width:0">
-            <div class="title" id="peerName">Выбери пользователя слева</div>
-            <div class="sub" id="peerSub">—</div>
-          </div>
-        </div>
-        <span class="badge" id="chatBadge">TeleLike</span>
-      </div>
-
-      <div class="msgs" id="msgs">
-        <div class="empty">
-          <div>
-            <div style="font-weight:900;color:var(--text);font-size:16px;margin-bottom:6px">🔎 Найди пользователя</div>
-            <div>В поиске — только те, кто зарегистрировался в этом браузере.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="composer">
-        <textarea id="text" placeholder="Сообщение… (Enter — отправка, Shift+Enter — перенос)" disabled></textarea>
-        <button class="send" id="send" disabled>➤</button>
-      </div>
-    </main>
-  </section>
-
-  <!-- PROFILE MODAL -->
-  <div class="modalBg" id="modalBg">
-    <div class="modal">
-      <div class="modalTop">
-        <b>Профиль</b>
-        <button class="iconBtn close" id="closeModal">✕</button>
-      </div>
-      <div class="modalBody">
-        <div class="avaPick" style="border-style:solid">
-          <div class="ava" style="width:58px;height:58px;border-radius:18px">
-            <img id="profAvaPrev" style="display:none" alt="">
-          </div>
-          <div style="flex:1">
-            <div style="font-weight:900">Аватар</div>
-            <div class="mini">Можно сменить на свою</div>
-          </div>
-          <input id="profAva" type="file" accept="image/*" hidden>
-          <button class="btn ghost" type="button" id="pickProfAva">Выбрать</button>
-        </div>
-
-        <div class="field" style="margin-top:12px">
-          <label>Никнейм</label>
-          <input id="profName" type="text">
-        </div>
-
-        <div class="field">
-          <label>Тема интерфейса</label>
-          <div class="selectTheme">
-            <button class="themeBtn" type="button" data-t="blue" title="Blue"></button>
-            <button class="themeBtn" type="button" data-t="purple" title="Purple"></button>
-            <button class="themeBtn" type="button" data-t="green" title="Green"></button>
-            <button class="themeBtn" type="button" data-t="red" title="Red"></button>
-          </div>
-        </div>
-
-        <div class="row" style="margin-top:12px">
-          <button class="btn" type="button" id="saveProfile">Сохранить</button>
-          <button class="btn ghost" type="button" id="wipe">Сбросить всё</button>
-        </div>
-
-        <div class="toast" id="profToast"></div>
-        <div class="hint">Локально: всё хранится в localStorage.</div>
-      </div>
-    </div>
-  </div>
+<input id="msg">
+<button onclick="send()">send</button>
 
 </div>
 
 <script>
-  // ---------- Storage ----------
-  const KEY = "telelike_v1";
-  const $ = (s)=>document.querySelector(s);
 
-  const store = {
-    load(){
-      try{ return JSON.parse(localStorage.getItem(KEY)) || { users:[], sessions:{current:null}, chats:[] }; }
-      catch{ return { users:[], sessions:{current:null}, chats:[] }; }
-    },
-    save(data){ localStorage.setItem(KEY, JSON.stringify(data)); },
-    wipe(){ localStorage.removeItem(KEY); }
-  };
+let socket=io()
+let currentUser=null
 
-  function escapeHtml(str){
-    return String(str)
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-  function nowTime(){
-    const d=new Date();
-    return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
-  }
-  function toast(el,msg,type="ok"){
-    el.className="toast show "+type;
-    el.textContent=msg;
-    setTimeout(()=>el.classList.remove("show"),2200);
-  }
-  function setAva(imgEl,dataUrl){
-    if(dataUrl){
-      imgEl.src=dataUrl;
-      imgEl.style.display="block";
-    }else{
-      imgEl.removeAttribute("src");
-      imgEl.style.display="none";
-    }
-  }
-  function fileToDataURL(file){
-    return new Promise((res,rej)=>{
-      const r=new FileReader();
-      r.onload=()=>res(String(r.result));
-      r.onerror=rej;
-      r.readAsDataURL(file);
-    });
-  }
+async function register(){
 
-  // ---------- DOM ----------
-  const auth=$("#auth"), app=$("#app");
-  const tabLogin=$("#tabLogin"), tabReg=$("#tabReg");
-  const loginForm=$("#loginForm"), regForm=$("#regForm");
-  const loginToast=$("#loginToast"), regToast=$("#regToast");
+let username=ruser.value
+let password=rpass.value
 
-  // register ava
-  const regAva=$("#regAva"), regAvaPrev=$("#regAvaPrev");
-  let regAvaData=null;
+let r=await fetch("/register",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({username,password})
+})
 
-  $("#pickRegAva").onclick=()=>regAva.click();
-  regAva.onchange=async (e)=>{
-    const f=e.target.files?.[0]; if(!f) return;
-    if(f.size>2.5*1024*1024){ toast(regToast,"Ава слишком большая (макс 2.5MB)","err"); regAva.value=""; return; }
-    regAvaData=await fileToDataURL(f);
-    setAva(regAvaPrev,regAvaData);
-  };
+let data=await r.json()
 
-  tabLogin.onclick=()=>{
-    tabLogin.classList.add("active");
-    tabReg.classList.remove("active");
-    loginForm.style.display="block";
-    regForm.style.display="none";
-  };
-  tabReg.onclick=()=>{
-    tabReg.classList.add("active");
-    tabLogin.classList.remove("active");
-    loginForm.style.display="none";
-    regForm.style.display="block";
-  };
+alert(JSON.stringify(data))
+}
 
-  $("#demo").onclick=()=>{
-    $("#loginUser").value="Tema";
-    $("#loginPass").value="1234";
-    // Create demo account only if missing
-    const data=store.load();
-    if(!data.users.find(u=>u.username.toLowerCase()==="tema")){
-      data.users.push({ id: crypto.randomUUID(), username:"Tema", pass:"1234", avatar:null, theme:"blue" });
-      store.save(data);
-    }
-    toast(loginToast,"Демо готово. Жми «Войти».","ok");
-  };
+async function login(){
 
-  function validUsername(u){
-    if(u.length<2 || u.length>24) return false;
-    return /^[a-zA-Z0-9_а-яА-ЯёЁ]+$/.test(u);
-  }
+let username=luser.value
+let password=lpass.value
 
-  // ---------- Register ----------
-  regForm.onsubmit=(e)=>{
-    e.preventDefault();
-    const data=store.load();
-    const username=$("#regUser").value.trim();
-    const pass=$("#regPass").value;
+let r=await fetch("/login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({username,password})
+})
 
-    if(!validUsername(username)){ toast(regToast,"Ник: 2–24 символа (буквы/цифры/_).","err"); return; }
-    if(pass.length<4){ toast(regToast,"Пароль минимум 4 символа.","err"); return; }
-    if(data.users.some(u=>u.username.toLowerCase()===username.toLowerCase())){
-      toast(regToast,"Такой ник уже занят.","err"); return;
-    }
+let data=await r.json()
 
-    const user={ id: crypto.randomUUID(), username, pass, avatar: regAvaData, theme:"blue" };
-    data.users.push(user);
-    data.sessions.current=user.id;
-    store.save(data);
+if(data.error) return alert(data.error)
 
-    toast(regToast,"Аккаунт создан ✅","ok");
-    boot();
-  };
+currentUser=data
 
-  // ---------- Login ----------
-  loginForm.onsubmit=(e)=>{
-    e.preventDefault();
-    const data=store.load();
-    const username=$("#loginUser").value.trim();
-    const pass=$("#loginPass").value;
-    const user=data.users.find(u=>u.username.toLowerCase()===username.toLowerCase());
-    if(!user || user.pass!==pass){ toast(loginToast,"Неверный ник или пароль.","err"); return; }
-    data.sessions.current=user.id;
-    store.save(data);
-    toast(loginToast,"Входим…","ok");
-    boot();
-  };
+auth.style.display="none"
+chat.style.display="block"
 
-  // ---------- App logic ----------
-  const meName=$("#meName"), meAva=$("#meAva");
-  const userSearch=$("#userSearch");
-  const list=$("#list");
-  const peerName=$("#peerName"), peerAva=$("#peerAva"), peerSub=$("#peerSub"), chatBadge=$("#chatBadge");
-  const msgs=$("#msgs");
-  const text=$("#text"), send=$("#send");
+loadUsers()
+}
 
-  let activeChatId=null;
+async function loadUsers(){
 
-  function getMe(data){
-    return data.users.find(u=>u.id===data.sessions.current) || null;
-  }
+let r=await fetch("/users")
+let data=await r.json()
 
-  function getChatId(aId,bId){
-    // stable id for pair
-    return [aId,bId].sort().join("::");
-  }
+users.innerHTML=""
 
-  function ensureChat(data, otherUserId){
-    const me=getMe(data);
-    const id=getChatId(me.id, otherUserId);
-    let chat=data.chats.find(c=>c.id===id);
-    if(!chat){
-      chat={ id, a:me.id, b:otherUserId, messages:[] };
-      data.chats.push(chat);
-      store.save(data);
-    }
-    return chat;
-  }
+data.forEach(u=>{
 
-  function getOther(data, chat){
-    const me=getMe(data);
-    const otherId = chat.a===me.id ? chat.b : chat.a;
-    return data.users.find(u=>u.id===otherId);
-  }
+if(u.id===currentUser.id) return
 
-  function renderList(){
-    const data=store.load();
-    const me=getMe(data);
-    if(!me) return;
+let div=document.createElement("div")
+div.className="user"
+div.innerText=u.username
 
-    // apply theme
-    document.documentElement.setAttribute("data-theme", me.theme || "blue");
+users.appendChild(div)
 
-    meName.textContent=me.username;
-    setAva(meAva, me.avatar);
+})
 
-    const q=userSearch.value.trim().toLowerCase();
+}
 
-    // show users list (search results) excluding me
-    const users = data.users
-      .filter(u=>u.id!==me.id)
-      .filter(u=>!q || u.username.toLowerCase().includes(q))
-      .sort((x,y)=>x.username.localeCompare(y.username, "ru"));
+function send(){
 
-    list.innerHTML="";
-    if(users.length===0){
-      list.innerHTML=`<div style="padding:14px;color:var(--muted);font-size:13px;">Никого не найдено.</div>`;
-      return;
-    }
+let text=msg.value
 
-    users.forEach(u=>{
-      // last message preview if chat exists
-      const chatId=getChatId(me.id,u.id);
-      const chat=data.chats.find(c=>c.id===chatId);
-      const last = chat?.messages?.at(-1)?.text || "Написать сообщение…";
+socket.emit("message",{
+user:currentUser.username,
+text:text
+})
 
-      const el=document.createElement("div");
-      el.className="item"+(activeChatId===chatId ? " active":"");
-      el.innerHTML=`
-        <div class="ava">${u.avatar?`<img src="${u.avatar}" alt="">`:``}</div>
-        <div class="info">
-          <div class="title">${escapeHtml(u.username)}</div>
-          <div class="last">${escapeHtml(last)}</div>
-        </div>
-      `;
-      el.onclick=()=>{
-        const data2=store.load();
-        ensureChat(data2,u.id);
-        activeChatId=chatId;
-        openChat();
-        renderList();
-      };
-      list.appendChild(el);
-    });
-  }
+msg.value=""
+}
 
-  function openChat(){
-    const data=store.load();
-    const me=getMe(data);
-    if(!me || !activeChatId) return;
+socket.on("message",m=>{
 
-    const chat=data.chats.find(c=>c.id===activeChatId);
-    if(!chat) return;
+let div=document.createElement("div")
+div.innerText=m.user+": "+m.text
 
-    const other=getOther(data, chat);
-    if(!other) return;
+messages.appendChild(div)
 
-    peerName.textContent=other.username;
-    peerSub.textContent="online";
-    chatBadge.textContent="личный чат";
-    setAva(peerAva, other.avatar);
+})
 
-    msgs.innerHTML="";
-    if(chat.messages.length===0){
-      msgs.innerHTML=`<div class="empty"><div><b style="color:var(--text)">Напиши первым</b><div style="margin-top:6px">Это личный чат с ${escapeHtml(other.username)}.</div></div></div>`;
-    }else{
-      chat.messages.forEach(m=>{
-        const isMe=m.from===me.id;
-        const row=document.createElement("div");
-        row.className="rowMsg"+(isMe?" me":"");
-        const fromName = isMe ? me.username : other.username;
-        row.innerHTML=`
-          <div class="bubble">
-            ${escapeHtml(m.text)}
-            <div class="meta">
-              <span>${escapeHtml(fromName)}</span>
-              <span>${escapeHtml(m.time)}</span>
-            </div>
-          </div>
-        `;
-        msgs.appendChild(row);
-      });
-    }
-    text.disabled=false;
-    send.disabled=false;
-    msgs.scrollTop=msgs.scrollHeight;
-  }
-
-  function sendMsg(){
-    const t=text.value.trim();
-    if(!t || !activeChatId) return;
-
-    const data=store.load();
-    const me=getMe(data);
-    const chat=data.chats.find(c=>c.id===activeChatId);
-    if(!chat) return;
-
-    chat.messages.push({ from: me.id, text: t, time: nowTime() });
-    store.save(data);
-
-    text.value="";
-    openChat();
-    renderList();
-  }
-
-  send.onclick=sendMsg;
-  text.addEventListener("keydown",(e)=>{
-    if(e.key==="Enter" && !e.shiftKey){
-      e.preventDefault();
-      sendMsg();
-    }
-  });
-
-  userSearch.oninput=renderList;
-
-  $("#newChat").onclick=()=>{
-    userSearch.focus();
-    userSearch.value="";
-    renderList();
-  };
-
-  $("#logout").onclick=()=>{
-    const data=store.load();
-    data.sessions.current=null;
-    store.save(data);
-    activeChatId=null;
-    boot();
-  };
-
-  // ---------- Profile modal ----------
-  const modalBg=$("#modalBg");
-  const profAva=$("#profAva");
-  const profAvaPrev=$("#profAvaPrev");
-  const profName=$("#profName");
-  const profToast=$("#profToast");
-  let profAvaData=null;
-
-  $("#openProfile").onclick=()=>{
-    const data=store.load();
-    const me=getMe(data);
-    profName.value=me.username;
-    profAvaData=me.avatar || null;
-    setAva(profAvaPrev, profAvaData);
-    modalBg.style.display="block";
-  };
-  $("#closeModal").onclick=()=>modalBg.style.display="none";
-  modalBg.onclick=(e)=>{ if(e.target===modalBg) modalBg.style.display="none"; };
-
-  $("#pickProfAva").onclick=()=>profAva.click();
-  profAva.onchange=async (e)=>{
-    const f=e.target.files?.[0]; if(!f) return;
-    if(f.size>2.5*1024*1024){ toast(profToast,"Ава слишком большая (макс 2.5MB)","err"); profAva.value=""; return; }
-    profAvaData=await fileToDataURL(f);
-    setAva(profAvaPrev, profAvaData);
-  };
-
-  document.querySelectorAll(".themeBtn").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      // preview in modal
-      const t=btn.getAttribute("data-t");
-      document.documentElement.setAttribute("data-theme", t);
-      // store temp choice in dataset
-      modalBg.dataset.theme=t;
-      toast(profToast, "Тема выбрана: "+t, "ok");
-    });
-  });
-
-  $("#saveProfile").onclick=()=>{
-    const data=store.load();
-    const me=getMe(data);
-    const newName=profName.value.trim();
-
-    if(!validUsername(newName)){ toast(profToast,"Ник: 2–24 символа (буквы/цифры/_).","err"); return; }
-
-    // if name changed, must be unique
-    const conflict=data.users.find(u=>u.username.toLowerCase()===newName.toLowerCase() && u.id!==me.id);
-    if(conflict){ toast(profToast,"Такой ник уже занят.","err"); return; }
-
-    me.username=newName;
-    me.avatar=profAvaData;
-    const chosenTheme = modalBg.dataset.theme;
-    if(chosenTheme) me.theme=chosenTheme;
-
-    store.save(data);
-    toast(profToast,"Сохранено ✅","ok");
-    modalBg.style.display="none";
-    boot();
-  };
-
-  $("#wipe").onclick=()=>{
-    store.wipe();
-    location.reload();
-  };
-
-  // ---------- Boot ----------
-  function boot(){
-    const data=store.load();
-    const me=getMe(data);
-
-    if(me){
-      auth.style.display="none";
-      app.style.display="grid";
-      document.documentElement.setAttribute("data-theme", me.theme || "blue");
-      renderList();
-      if(activeChatId) openChat();
-    }else{
-      auth.style.display="grid";
-      app.style.display="none";
-    }
-  }
-
-  boot();
 </script>
+
 </body>
 </html>
