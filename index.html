@@ -1,848 +1,1000 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MOTOBOX — BoxPvP</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
-
+  <title>TeleLike — HTML Messenger</title>
   <style>
     :root{
-      --bg:#020207;
-      --bg2:#050014;
+      --bg:#0b1220;
+      --panel:#111a2b;
+      --panel2:#0f1726;
+      --text:#eaf0ff;
+      --muted:#9fb0da;
+      --line:rgba(255,255,255,.08);
 
-      --card: rgba(255,255,255,.05);
-      --stroke: rgba(255,255,255,.10);
+      --accent:#4c7dff;
+      --accent2:#2ee59d;
 
-      --text:#eef2ff;
-      --muted:#9aa6c9;
+      --bubbleMe: rgba(76,125,255,.18);
+      --bubbleOther: rgba(255,255,255,.04);
 
-      --red:#ff224f;
-      --violet:#7c3aed;
-
-      --shadow: 0 18px 70px rgba(0,0,0,.72);
+      --shadow: 0 18px 48px rgba(0,0,0,.45);
       --r:18px;
       --r2:26px;
+
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    }
+
+    /* THEMES */
+    [data-theme="blue"]{
+      --accent:#4c7dff; --accent2:#2ee59d;
+      --bubbleMe: rgba(76,125,255,.18);
+    }
+    [data-theme="purple"]{
+      --accent:#8a5cff; --accent2:#ff6bd6;
+      --bubbleMe: rgba(138,92,255,.18);
+    }
+    [data-theme="green"]{
+      --accent:#2ee59d; --accent2:#77d6ff;
+      --bubbleMe: rgba(46,229,157,.16);
+    }
+    [data-theme="red"]{
+      --accent:#ff5c7a; --accent2:#ffa84c;
+      --bubbleMe: rgba(255,92,122,.16);
     }
 
     *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0;
-      font-family:Montserrat,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      font-family:var(--font);
       color:var(--text);
       background:
-        radial-gradient(1100px 650px at 10% 10%, rgba(124,58,237,.18), transparent 60%),
-        radial-gradient(1100px 650px at 90% 10%, rgba(255,34,79,.12), transparent 62%),
-        radial-gradient(900px 650px at 50% 110%, rgba(124,58,237,.10), transparent 60%),
-        linear-gradient(180deg, var(--bg), var(--bg2));
-      min-height:100vh;
-      overflow-x:hidden;
-    }
-
-    a{color:inherit; text-decoration:none}
-    .wrap{max-width:1200px; margin:0 auto; padding:20px;}
-    .muted{color:var(--muted)}
-    .k{font-weight:900}
-
-    /* TOPBAR */
-    .topbar{
-      position:sticky; top:0; z-index:60;
-      backdrop-filter: blur(14px);
-      background: linear-gradient(to bottom, rgba(2,2,7,.92), rgba(2,2,7,.40));
-      border-bottom:1px solid rgba(255,255,255,.08);
-    }
-    .topbar-inner{
-      max-width:1200px; margin:0 auto;
-      padding:14px 20px;
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-    }
-    .brand{
-      display:flex; align-items:center; gap:10px;
-      font-weight:900; letter-spacing:1px;
-      user-select:none;
-    }
-    .dot{
-      width:10px; height:10px; border-radius:999px;
-      background: linear-gradient(90deg, var(--red), var(--violet));
-      box-shadow: 0 0 22px rgba(124,58,237,.55);
-    }
-
-    .tabs{
-      display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;
-    }
-    .tabbtn{
-      padding:10px 12px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.04);
-      color:var(--muted);
-      font-weight:900;
-      font-size:13px;
-      cursor:pointer;
-      transition:.15s;
-      user-select:none;
-      white-space:nowrap;
-    }
-    .tabbtn:hover{
-      color:var(--text);
-      background: rgba(255,255,255,.06);
-      border-color: rgba(255,255,255,.14);
-      transform: translateY(-1px);
-    }
-    .tabbtn.active{
-      color:var(--text);
-      border-color: rgba(124,58,237,.45);
-      background: linear-gradient(90deg, rgba(124,58,237,.22), rgba(255,34,79,.12));
-      box-shadow: 0 10px 30px rgba(0,0,0,.35);
-    }
-
-    /* PANELS */
-    .panel{display:none; animation: fade .18s ease-out;}
-    .panel.active{display:block;}
-    @keyframes fade{
-      from{opacity:0; transform: translateY(4px);}
-      to{opacity:1; transform: translateY(0);}
-    }
-
-    /* HERO */
-    .hero{
-      margin-top:18px;
-      border-radius: var(--r2);
+        radial-gradient(900px 520px at 15% 10%, color-mix(in srgb, var(--accent) 25%, transparent), transparent 60%),
+        radial-gradient(900px 520px at 85% 0%, color-mix(in srgb, var(--accent2) 18%, transparent), transparent 55%),
+        var(--bg);
       overflow:hidden;
-      border:1px solid rgba(255,255,255,.10);
-      box-shadow: var(--shadow);
-      background:
-        radial-gradient(1000px 560px at 20% 20%, rgba(124,58,237,.18), transparent 60%),
-        radial-gradient(1000px 560px at 80% 20%, rgba(255,34,79,.12), transparent 60%),
-        linear-gradient(rgba(0,0,0,.45), rgba(0,0,0,.90)),
-        url("https://i.postimg.cc/yxYbKmfs/317f19aa-6408-416c-a12c-8bfca61fec52.png");
-      background-size: cover;
-      background-position:center;
-      min-height: 540px;
-      display:flex;
-      position:relative;
-      isolation:isolate;
     }
-    .hero::after{
-      content:"";
-      position:absolute; inset:-2px;
-      background: repeating-linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.04) 1px, transparent 1px, transparent 7px);
-      opacity:.12;
-      pointer-events:none;
-      mix-blend-mode: overlay;
-      z-index:0;
-    }
+    button,input,textarea{font-family:inherit}
+    .wrap{height:100%; display:grid; place-items:center; padding:18px;}
 
-    .hero-inner{
-      width:100%;
-      padding:48px 26px;
+    /* AUTH */
+    .auth{
+      width:min(980px,100%);
+      min-height:560px;
       display:grid;
-      grid-template-columns: 1.25fr .75fr;
-      gap:18px;
-      align-items:end;
+      grid-template-columns: 1.1fr .9fr;
+      gap:16px;
+      border:1px solid var(--line);
+      border-radius:var(--r2);
+      background: rgba(255,255,255,.03);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .authL{
+      padding:30px;
+      background: linear-gradient(180deg, rgba(17,26,43,.95), rgba(11,18,32,.95));
       position:relative;
-      z-index:1;
     }
-
-    .h-title{
-      font-size: clamp(34px, 6vw, 74px);
-      font-weight: 900;
-      letter-spacing: 2px;
-      margin:0;
-      text-shadow: 0 0 34px rgba(124,58,237,.24);
-      line-height:1.05;
+    .brand{display:flex; gap:12px; align-items:center;}
+    .logo{
+      width:46px;height:46px;border-radius:16px;
+      background: conic-gradient(from 200deg, var(--accent), var(--accent2), var(--accent));
+      box-shadow: 0 14px 30px color-mix(in srgb, var(--accent) 25%, transparent);
     }
-    .h-sub{
-      margin:10px 0 0;
-      color: rgba(237,242,255,.90);
-      font-weight:600;
-      line-height:1.65;
-      max-width:740px;
+    .brand h1{margin:0;font-size:18px}
+    .brand p{margin:2px 0 0; color:var(--muted); font-size:12px}
+    .hero{margin-top:20px; max-width:520px}
+    .hero h2{
+      margin:0 0 10px;
+      font-size:40px; line-height:1.05;
+      letter-spacing:-.6px;
     }
-
-    .chips{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;}
+    .hero h2 span{
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+    .hero p{margin:0; color:var(--muted); line-height:1.6; font-size:14px}
+    .chips{margin-top:16px; display:flex; gap:10px; flex-wrap:wrap}
     .chip{
-      padding:9px 12px;
+      font-size:12px;
+      padding:8px 10px;
+      border:1px solid var(--line);
       border-radius:999px;
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-      color: var(--muted);
-      font-weight:900;
-      font-size:13px;
+      background: rgba(255,255,255,.03);
     }
 
-    /* GRID / CARDS */
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap:14px;
-      margin-top:14px;
+    .authR{
+      padding:22px;
+      background: linear-gradient(180deg, rgba(15,23,38,.95), rgba(17,26,43,.95));
+      border-left:1px solid var(--line);
+      display:flex; flex-direction:column; justify-content:center;
     }
-    .span-6{grid-column: span 6;}
-    .span-12{grid-column: span 12;}
-
+    .tabs{
+      display:flex; gap:10px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      border-radius:14px;
+      padding:6px;
+      margin-bottom:12px;
+    }
+    .tab{
+      flex:1;
+      border:0;
+      background:transparent;
+      color:var(--muted);
+      padding:10px 12px;
+      border-radius:10px;
+      font-weight:800;
+      cursor:pointer;
+      transition:.2s;
+    }
+    .tab.active{
+      color:var(--text);
+      background: color-mix(in srgb, var(--accent) 18%, transparent);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 24%, transparent);
+    }
     .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid rgba(255,255,255,.10);
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
       border-radius: var(--r);
       padding:16px;
-      box-shadow: 0 12px 35px rgba(0,0,0,.40);
     }
-    .card h3{
-      margin:0 0 10px;
-      font-size:12px;
-      color:var(--muted);
-      font-weight:900;
-      letter-spacing:.6px;
-      text-transform:uppercase;
-    }
-
-    .ip-row{
-      display:flex; gap:10px; align-items:center; justify-content:space-between;
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius: 14px;
+    .field{display:flex; flex-direction:column; gap:7px; margin:12px 0}
+    label{font-size:12px; color:var(--muted)}
+    input[type="text"], input[type="password"]{
+      width:100%;
       padding:12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(5,8,16,.55);
+      color:var(--text);
+      outline:none;
     }
-    .ip{
-      font-weight:900;
-      letter-spacing:.6px;
-      font-size:15px;
-      word-break:break-word;
+    input:focus{
+      border-color: color-mix(in srgb, var(--accent) 65%, transparent);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent);
     }
+    .row{display:flex; gap:10px}
+    .row > *{flex:1}
     .btn{
-      display:inline-flex; align-items:center; justify-content:center;
-      padding:10px 12px;
-      border-radius: 12px;
-      border:1px solid rgba(255,255,255,.10);
-      background: linear-gradient(90deg, rgba(124,58,237,.22), rgba(255,34,79,.16));
-      color: var(--text);
-      font-weight:900;
+      border:0;
+      padding:12px 14px;
+      border-radius:12px;
       cursor:pointer;
-      transition:.15s;
-      user-select:none;
-      min-width: 128px;
+      font-weight:900;
+      color:var(--text);
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      box-shadow: 0 14px 30px color-mix(in srgb, var(--accent) 22%, transparent);
+      transition:.2s;
+    }
+    .btn:hover{transform: translateY(-1px)}
+    .btn.ghost{
+      background: transparent;
+      border:1px solid var(--line);
+      box-shadow:none;
+    }
+    .toast{
+      margin-top:10px;
+      font-size:12px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      display:none;
+    }
+    .toast.show{display:block}
+    .toast.ok{border-color: color-mix(in srgb, var(--accent2) 40%, transparent)}
+    .toast.err{border-color: rgba(255,92,122,.4)}
+    .hint{margin-top:10px; font-size:12px; color:var(--muted); line-height:1.45}
+
+    .avaPick{
+      display:flex; align-items:center; gap:12px;
+      padding:12px;
+      border:1px dashed rgba(255,255,255,.14);
+      border-radius:14px;
+      background: rgba(255,255,255,.02);
+    }
+    .ava{
+      width:44px;height:44px;border-radius:16px;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 40%, transparent),
+                                      color-mix(in srgb, var(--accent2) 30%, transparent));
+      border:1px solid rgba(255,255,255,.10);
+      overflow:hidden;
       flex:0 0 auto;
     }
-    .btn:hover{transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0,0,0,.35);}
-    .btn:active{transform: translateY(0px);}
-
-    .tiny{font-size:12px; color:var(--muted); margin-top:10px; line-height:1.55;}
-    code{
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-      padding:2px 6px;
-      border-radius:10px;
-      color:#dbe6ff;
+    .ava img{width:100%;height:100%;object-fit:cover;display:block}
+    .mini{font-size:12px; color:var(--muted)}
+    .selectTheme{
+      display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;
     }
-
-    /* LINKS */
-    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;}
-    .linkbtn{
-      display:inline-flex; align-items:center; justify-content:center;
-      padding:12px 14px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.05);
-      font-weight:900;
-      transition:.15s;
-    }
-    .linkbtn.primary{
-      background: linear-gradient(90deg, rgba(124,58,237,.22), rgba(255,34,79,.14));
-    }
-    .linkbtn:hover{transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0,0,0,.25);}
-
-    /* SECTION */
-    .sec-title{
-      font-size: 28px;
-      font-weight: 900;
-      letter-spacing: 1px;
-      margin: 12px 0 10px;
-    }
-    .sec-sub{color:var(--muted); margin:0 0 18px; line-height:1.65;}
-
-    /* DONATE */
-    .ranks{
-      display:grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap:16px;
-      margin-top:12px;
-    }
-    .rank{
-      background: rgba(255,255,255,.045);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius: 18px;
-      padding:14px;
-      transition:.18s;
+    .themeBtn{
+      width:44px;height:34px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      cursor:pointer;
+      background: rgba(255,255,255,.03);
+      position:relative;
       overflow:hidden;
-      position:relative;
     }
-    .rank::before{
+    .themeBtn::before{
       content:"";
-      position:absolute; inset:-60px;
-      background:
-        radial-gradient(circle at 30% 20%, rgba(124,58,237,.18), transparent 45%),
-        radial-gradient(circle at 70% 20%, rgba(255,34,79,.12), transparent 45%);
-      opacity:.35;
-      pointer-events:none;
-    }
-    .rank:hover{
-      transform: translateY(-6px);
-      border-color: rgba(124,58,237,.55);
-      box-shadow: 0 0 44px rgba(124,58,237,.20);
-    }
-    .rank.special:hover{
-      border-color: rgba(255,70,70,.65);
-      box-shadow: 0 0 62px rgba(255,70,70,.22);
-    }
-    .rank img{
-      width:100%;
-      aspect-ratio: 1 / 1;
-      object-fit: cover;
-      border-radius: 14px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.20);
-      position:relative;
-      z-index:1;
-    }
-    .rank h4{
-      margin:12px 0 6px;
-      font-size:18px;
-      font-weight:900;
-      letter-spacing:1px;
-      position:relative;
-      z-index:1;
-    }
-    .price{
-      color:var(--muted);
-      font-weight:800;
-      font-size:13px;
-      position:relative;
-      z-index:1;
-    }
-    .buy{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:11px 12px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background: linear-gradient(90deg, rgba(124,58,237,.24), rgba(255,34,79,.16));
-      font-weight:900;
-      letter-spacing:.3px;
-      transition:.15s;
-      width:100%;
-      margin-top:12px;
-      position:relative;
-      z-index:1;
-    }
-    .buy:hover{transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0,0,0,.35);}
-
-    /* SERVER STATUS */
-    .statusRow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
-      padding:12px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.05);
-      margin-top:12px;
-    }
-    .statusBadge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.18);
-      font-weight:900;
-      color:#dbe6ff;
-    }
-    .lamp{
-      width:9px; height:9px; border-radius:999px;
-      background: rgba(255,255,255,.35);
-      box-shadow: 0 0 0 rgba(0,0,0,0);
-    }
-    .lamp.on{
-      background: #35ff9a;
-      box-shadow: 0 0 18px rgba(53,255,154,.55);
-    }
-    .lamp.off{
-      background: #ff224f;
-      box-shadow: 0 0 18px rgba(255,34,79,.45);
-    }
-    .statusRight{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      flex-wrap:wrap;
-      justify-content:flex-end;
+      position:absolute; inset:0;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      opacity:.9;
     }
 
-    /* RULES */
-    .rules-tools{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
-      margin-bottom:10px;
+    /* APP */
+    .app{
+      width:min(1200px,100%);
+      height:min(780px, 100%);
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:14px;
+      border:1px solid var(--line);
+      border-radius:var(--r2);
+      background: rgba(255,255,255,.03);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .sidebar{
+      background: linear-gradient(180deg, rgba(17,26,43,.96), rgba(11,18,32,.96));
+      border-right:1px solid var(--line);
+      display:flex; flex-direction:column;
+    }
+    .topbar{
+      padding:14px;
+      border-bottom:1px solid var(--line);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .me{
+      display:flex; align-items:center; gap:10px; min-width:0;
+    }
+    .me .ava{width:40px;height:40px}
+    .me .name{font-weight:900; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .me .sub{font-size:12px; color:var(--muted)}
+    .actions{display:flex; gap:8px}
+    .iconBtn{
+      width:36px;height:36px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color:var(--text);
+      cursor:pointer;
+      display:grid; place-items:center;
     }
     .search{
-      flex: 1 1 260px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.05);
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      display:flex; gap:10px;
     }
-    .search input{
-      width:100%;
-      border:none;
-      outline:none;
-      background:transparent;
-      color:var(--text);
-      font-weight:700;
-      font-family:inherit;
-    }
-    .pill{
-      padding:9px 12px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.05);
-      color:var(--muted);
-      font-weight:900;
-      font-size:12px;
+    .search input{flex:1}
+    .list{padding:10px; overflow:auto}
+    .item{
+      display:flex; gap:12px; align-items:center;
+      padding:12px;
+      border-radius:16px;
       cursor:pointer;
+      border:1px solid transparent;
       transition:.15s;
-      user-select:none;
-      white-space:nowrap;
     }
-    .pill:hover{transform: translateY(-1px); color:var(--text); border-color: rgba(255,255,255,.14);}
-    .pill.active{
-      color:var(--text);
-      border-color: rgba(124,58,237,.45);
-      background: linear-gradient(90deg, rgba(124,58,237,.18), rgba(255,34,79,.12));
+    .item:hover{background: rgba(255,255,255,.03)}
+    .item.active{
+      background: color-mix(in srgb, var(--accent) 14%, transparent);
+      border-color: color-mix(in srgb, var(--accent) 22%, transparent);
     }
+    .item .ava{width:44px;height:44px}
+    .item .info{min-width:0; flex:1}
+    .item .title{margin:0; font-weight:900; font-size:13px}
+    .item .last{margin-top:3px; font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 
-    .rules-wrap{display:grid; gap:12px;}
-    details.rule{
+    .main{
+      background: radial-gradient(900px 520px at 70% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),
+                  linear-gradient(180deg, rgba(15,23,38,.95), rgba(11,18,32,.95));
+      display:flex; flex-direction:column;
+    }
+    .chatHead{
+      padding:14px;
+      border-bottom:1px solid var(--line);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .peer{display:flex; gap:10px; align-items:center; min-width:0}
+    .peer .ava{width:40px;height:40px}
+    .peer .title{font-weight:900; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .peer .sub{font-size:12px; color:var(--muted)}
+    .badge{
+      font-size:11px;
+      padding:6px 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color: rgba(234,240,255,.9);
+    }
+    .msgs{
+      flex:1; overflow:auto; padding:16px;
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .empty{
+      flex:1; display:grid; place-items:center;
+      color:var(--muted); text-align:center; padding:24px;
+    }
+    .rowMsg{display:flex; gap:10px}
+    .rowMsg.me{justify-content:flex-end}
+    .bubble{
+      max-width:min(560px,82%);
+      padding:10px 12px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background: var(--bubbleOther);
+      white-space:pre-wrap;
+      word-break:break-word;
+      font-size:13px;
+      line-height:1.35;
+    }
+    .rowMsg.me .bubble{
+      background: var(--bubbleMe);
+      border-color: color-mix(in srgb, var(--accent) 22%, transparent);
+    }
+    .meta{
+      margin-top:6px;
+      font-size:11px;
+      color: rgba(234,240,255,.72);
+      display:flex; gap:10px; justify-content:space-between;
+    }
+    .composer{
+      padding:12px 14px;
+      border-top:1px solid var(--line);
+      display:flex; gap:10px; align-items:center;
+      background: rgba(255,255,255,.02);
+    }
+    textarea{
+      flex:1;
+      resize:none;
+      height:44px;
+      max-height:120px;
+      padding:12px;
       border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      background: rgba(5,8,16,.52);
+      color:var(--text);
+      outline:none;
+    }
+    textarea:focus{
+      border-color: color-mix(in srgb, var(--accent) 65%, transparent);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent);
+    }
+    .send{
+      width:44px;height:44px;border-radius:14px;
+      border:0; cursor:pointer; font-weight:900;
+      color:var(--text);
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      box-shadow: 0 14px 30px color-mix(in srgb, var(--accent) 20%, transparent);
+    }
+    .send:disabled, textarea:disabled{opacity:.45; cursor:not-allowed}
+
+    /* MODAL */
+    .modalBg{
+      display:none;
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.58);
+      backdrop-filter: blur(10px);
+      padding:16px;
+    }
+    .modal{
+      max-width:520px;
+      margin: 7vh auto;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background: rgba(17,26,43,.96);
+      box-shadow:var(--shadow);
       overflow:hidden;
     }
-    details.rule[open]{border-color: rgba(124,58,237,.35); box-shadow: 0 12px 30px rgba(0,0,0,.25);}
-    summary.rule-head{
-      list-style:none;
-      cursor:pointer;
-      padding:14px 14px;
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      justify-content:space-between;
-      user-select:none;
+    .modalTop{
+      padding:14px 14px 12px;
+      border-bottom:1px solid var(--line);
+      display:flex; align-items:center; justify-content:space-between;
     }
-    summary.rule-head::-webkit-details-marker{display:none;}
-    .rule-left{display:flex; gap:12px; align-items:flex-start;}
-    .badge{
-      min-width:56px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:8px 10px;
-      border-radius:12px;
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-      font-weight:900;
-      color:#dbe6ff;
-    }
-    .rule-title{font-weight:900}
-    .rule-meta{color:var(--muted); font-size:12px; font-weight:800; margin-top:4px;}
-    .rule-body{
-      padding:0 14px 14px 14px;
-      color:var(--muted);
-      line-height:1.65;
-    }
-    .pun{
-      margin-top:10px;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,34,79,.08);
-      color:#ffdbe3;
-      font-weight:800;
-    }
+    .modalTop b{font-size:14px}
+    .modalBody{padding:14px}
+    .close{width:36px;height:36px}
 
-    .footer{
-      padding:22px 0 10px;
-      text-align:center;
-      color: var(--muted);
-      font-size:12px;
-      border-top:1px solid rgba(255,255,255,.08);
-      margin-top:40px;
+    @media (max-width: 980px){
+      body{overflow:auto}
+      .wrap{place-items:stretch}
+      .auth{grid-template-columns:1fr; min-height:auto}
+      .app{grid-template-columns:1fr; height:auto; min-height:720px}
+      .sidebar{min-height: 360px}
     }
-
-    /* MOBILE */
-    @media(max-width: 940px){
-      .wrap{padding:16px;}
-      .topbar-inner{padding:12px 16px;}
-      .tabs{gap:6px;}
-      .tabbtn{padding:9px 10px; font-size:12px;}
-      .hero{border-radius:22px;}
-      .hero-inner{
-        grid-template-columns:1fr;
-        align-items:start;
-        padding:26px 16px;
-      }
-      .chips{margin-top:14px;}
-      .grid{grid-template-columns:1fr; }
-      .span-6,.span-12{grid-column: span 12;}
-      .ip-row{flex-direction:column; align-items:stretch;}
-      .btn{min-width:0; width:100%;}
-      .actions .linkbtn{flex:1 1 140px;}
-      .sec-title{font-size:24px;}
-    }
-
-    @media(max-width: 420px){
-      .tabbtn{padding:8px 10px;}
-      .actions{gap:8px;}
-      .linkbtn{padding:11px 12px;}
-      .statusRight{width:100%; justify-content:space-between;}
-      .statusBadge{flex:1 1 auto; justify-content:center;}
-    }
+    ::-webkit-scrollbar{height:10px;width:10px}
+    ::-webkit-scrollbar-thumb{background: rgba(255,255,255,.08); border-radius:999px}
+    ::-webkit-scrollbar-track{background: transparent}
   </style>
 </head>
 
 <body>
+<div class="wrap" id="root">
 
-  <div class="topbar">
-    <div class="topbar-inner">
-      <div class="brand"><span class="dot"></span><span>MOTOBOX</span></div>
-
-      <div class="tabs">
-        <button class="tabbtn active" data-tab="home">Главная</button>
-        <button class="tabbtn" data-tab="donate">Донат</button>
-        <button class="tabbtn" data-tab="rules">Правила</button>
+  <!-- AUTH -->
+  <section class="auth" id="auth">
+    <div class="authL">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <h1>TeleLike</h1>
+          <p>HTML-мессенджер в стиле Telegram (локально)</p>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <div class="wrap">
-
-    <div class="panel active" id="tab-home">
       <div class="hero">
-        <div class="hero-inner">
-          <div>
-            <h1 class="h-title">MOTOBOX</h1>
-            <p class="h-sub">
-              BoxPvP без мусора: быстрые файты, нормальный баланс и мрачная атмосфера.
-              Залетай и докажи, что ты топ.
-            </p>
-
-            <div class="chips">
-              <span class="chip">BoxPvP</span>
-              <span class="chip">Арена</span>
-              <span class="chip">Ивенты</span>
-              <span class="chip">Киты</span>
-              <span class="chip">Анти-чит</span>
-            </div>
-
-            <div class="actions" style="margin-top:16px;">
-              <a class="linkbtn primary" href="https://dsc.gg/motobox" target="_blank" rel="noopener">Discord</a>
-              <a class="linkbtn" href="https://t.me/motoboxik" target="_blank" rel="noopener">Telegram</a>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3>Айпи сервера</h3>
-            <div class="ip-row">
-              <div class="ip" id="ipText">motobox.polit.day</div>
-              <div class="btn" id="copyBtn">Скопировать</div>
-            </div>
-
-            <div class="tiny">
-              Minecraft: <code>Сетевая игра → Добавить сервер → Айпи</code>
-            </div>
-
-            <div class="statusRow">
-              <div class="statusBadge">
-                <span class="lamp" id="lamp"></span>
-                <span id="statusText">Проверяю сервер...</span>
-              </div>
-              <div class="statusRight">
-                <div class="statusBadge"><span class="muted">Онлайн:</span>&nbsp;<span id="playersNow">—</span></div>
-                <div class="statusBadge"><span class="muted">Макс:</span>&nbsp;<span id="playersMax">300</span></div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="card span-6">
-          <h3>О сервере</h3>
-          <div class="muted" style="line-height:1.75;">
-            • Быстрый BoxPvP<br>
-            • Киты и экономика без имбы<br>
-            • Ивенты и раздачи<br>
-            • Донат — удобства/косметика<br>
-          </div>
+        <h2>Чат с <span>регистрацией</span> и <span>поиском</span>.</h2>
+        <p>
+          В этой версии всё хранится в браузере. Пользователи и чаты будут видны
+          только на этом устройстве/браузере.
+        </p>
+        <div class="chips">
+          <span class="chip">Регистрация/Вход</span>
+          <span class="chip">Поиск пользователей</span>
+          <span class="chip">Личные чаты</span>
+          <span class="chip">Смена ника/авы</span>
+          <span class="chip">Темы интерфейса</span>
         </div>
 
-        <div class="card span-6">
-          <h3>Сайт</h3>
-          <div class="muted" style="line-height:1.75;">
-            Домен: <span class="k" style="color:var(--text)">motobox.pp.ua</span><br>
-            Discord: <span class="k" style="color:var(--text)">dsc.gg/motobox</span><br>
-            Telegram: <span class="k" style="color:var(--text)">t.me/motoboxik</span>
-          </div>
+        <div class="hint" style="margin-top:18px">
+          Если нужно «настоящий Telegram» между разными людьми — нужен сервер.
         </div>
       </div>
     </div>
 
-    <div class="panel" id="tab-donate">
-      <h2 class="sec-title">Донат-привилегии</h2>
-
-      <div class="ranks">
-        <div class="rank">
-          <img src="https://i.postimg.cc/fTGTzCdK/Znimok-ekrana-2026-02-18-031115.png" alt="Nomad">
-          <h4>Nomad</h4>
-          <div class="price">59 грн / 150 ₽</div>
-          <a class="buy" href="https://dsc.gg/motobox" target="_blank" rel="noopener">Купить</a>
-        </div>
-
-        <div class="rank">
-          <img src="https://i.postimg.cc/0y75bSGc/Znimok-ekrana-2026-02-18-031122.png" alt="Guardian">
-          <h4>Guardian</h4>
-          <div class="price">119 грн / 300 ₽</div>
-          <a class="buy" href="https://dsc.gg/motobox" target="_blank" rel="noopener">Купить</a>
-        </div>
-
-        <div class="rank">
-          <img src="https://i.postimg.cc/P51fPDbK/Znimok-ekrana-2026-02-18-031129.png" alt="Phantom">
-          <h4>Phantom</h4>
-          <div class="price">199 грн / 500 ₽</div>
-          <a class="buy" href="https://dsc.gg/motobox" target="_blank" rel="noopener">Купить</a>
-        </div>
-
-        <div class="rank">
-          <img src="https://i.postimg.cc/8s8Y5ZX5/Znimok-ekrana-2026-02-18-031138.png" alt="Mythic">
-          <h4>Mythic</h4>
-          <div class="price">319 грн / 800 ₽</div>
-          <a class="buy" href="https://dsc.gg/motobox" target="_blank" rel="noopener">Купить</a>
-        </div>
-
-        <div class="rank">
-          <img src="https://i.postimg.cc/FH0F7Sb0/Znimok-ekrana-2026-02-18-031146.png" alt="Overlord">
-          <h4>Overlord</h4>
-          <div class="price">479 грн / 1200 ₽</div>
-          <a class="buy" href="https://dsc.gg/motobox" target="_blank" rel="noopener">Купить</a>
-        </div>
-
-        <div class="rank">
-          <img src="https://i.postimg.cc/3x2rdGjC/Znimok-ekrana-2026-02-18-031154.png" alt="Immortal">
-          <h4>Immortal</h4>
-          <div class="price">799 грн / 2000 ₽</div>
-          <a class="buy" href="https://dsc.gg/motobox" target="_blank" rel="noopener">Купить</a>
-        </div>
-
-        <div class="rank special">
-          <img src="https://i.postimg.cc/Jzj7GX33/Znimok-ekrana-2026-02-18-031214.png" alt="Custom">
-          <h4>Custom</h4>
-          <div class="price">300 грн / 750 ₽</div>
-          <a class="buy" href="https://dsc.gg/motobox" target="_blank" rel="noopener">Купить</a>
-        </div>
+    <div class="authR">
+      <div class="tabs">
+        <button class="tab active" id="tabLogin">Вход</button>
+        <button class="tab" id="tabReg">Регистрация</button>
       </div>
-    </div>
-
-    <div class="panel" id="tab-rules">
-      <h2 class="sec-title">Правила сервера</h2>
 
       <div class="card">
-        <h3>Поиск и фильтры</h3>
+        <!-- LOGIN -->
+        <form id="loginForm">
+          <div class="field">
+            <label>Ник</label>
+            <input id="loginUser" type="text" placeholder="Tema" required>
+          </div>
+          <div class="field">
+            <label>Пароль</label>
+            <input id="loginPass" type="password" placeholder="••••" required>
+          </div>
+          <div class="row">
+            <button class="btn" type="submit">Войти</button>
+            <button class="btn ghost" type="button" id="demo">Демо</button>
+          </div>
+          <div class="toast" id="loginToast"></div>
+        </form>
 
-        <div class="rules-tools">
-          <div class="search">
-            <span class="muted" style="font-weight:900;">🔎</span>
-            <input id="ruleSearch" placeholder="Поиск..." />
+        <!-- REGISTER -->
+        <form id="regForm" style="display:none">
+          <div class="field">
+            <label>Ник (уникальный)</label>
+            <input id="regUser" type="text" placeholder="Никнейм" required>
+          </div>
+          <div class="field">
+            <label>Пароль (мин 4)</label>
+            <input id="regPass" type="password" placeholder="••••" required>
           </div>
 
-          <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
-            <button class="pill active" data-filter="all">Все</button>
-            <button class="pill" data-filter="chat">Чат</button>
-            <button class="pill" data-filter="game">Геймплей</button>
-            <button class="pill" data-filter="cheat">Читы</button>
-            <button class="pill" data-filter="econ">Экономика</button>
+          <div class="field">
+            <label>Аватар (необязательно)</label>
+            <div class="avaPick">
+              <div class="ava"><img id="regAvaPrev" style="display:none" alt=""></div>
+              <div style="flex:1">
+                <div style="font-weight:900;font-size:13px">Загрузить аву</div>
+                <div class="mini">PNG/JPG/WebP (до 2.5MB)</div>
+              </div>
+              <input id="regAva" type="file" accept="image/*" hidden>
+              <button class="btn ghost" type="button" id="pickRegAva">Выбрать</button>
+            </div>
+          </div>
+
+          <button class="btn" type="submit" style="width:100%">Создать аккаунт</button>
+          <div class="toast" id="regToast"></div>
+
+          <div class="hint">
+            Темы можно менять уже в приложении (в профиле).
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- APP -->
+  <section class="app" id="app" style="display:none">
+    <aside class="sidebar">
+      <div class="topbar">
+        <div class="me">
+          <div class="ava"><img id="meAva" style="display:none" alt=""></div>
+          <div style="min-width:0">
+            <div class="name" id="meName">User</div>
+            <div class="sub">online</div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="iconBtn" id="openProfile" title="Профиль">👤</button>
+          <button class="iconBtn" id="logout" title="Выйти">⎋</button>
+        </div>
+      </div>
+
+      <div class="search">
+        <input id="userSearch" type="text" placeholder="Поиск пользователей…">
+        <button class="iconBtn" id="newChat" title="Новый чат">＋</button>
+      </div>
+
+      <div class="list" id="list"></div>
+    </aside>
+
+    <main class="main">
+      <div class="chatHead">
+        <div class="peer">
+          <div class="ava"><img id="peerAva" style="display:none" alt=""></div>
+          <div style="min-width:0">
+            <div class="title" id="peerName">Выбери пользователя слева</div>
+            <div class="sub" id="peerSub">—</div>
+          </div>
+        </div>
+        <span class="badge" id="chatBadge">TeleLike</span>
+      </div>
+
+      <div class="msgs" id="msgs">
+        <div class="empty">
+          <div>
+            <div style="font-weight:900;color:var(--text);font-size:16px;margin-bottom:6px">🔎 Найди пользователя</div>
+            <div>В поиске — только те, кто зарегистрировался в этом браузере.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="composer">
+        <textarea id="text" placeholder="Сообщение… (Enter — отправка, Shift+Enter — перенос)" disabled></textarea>
+        <button class="send" id="send" disabled>➤</button>
+      </div>
+    </main>
+  </section>
+
+  <!-- PROFILE MODAL -->
+  <div class="modalBg" id="modalBg">
+    <div class="modal">
+      <div class="modalTop">
+        <b>Профиль</b>
+        <button class="iconBtn close" id="closeModal">✕</button>
+      </div>
+      <div class="modalBody">
+        <div class="avaPick" style="border-style:solid">
+          <div class="ava" style="width:58px;height:58px;border-radius:18px">
+            <img id="profAvaPrev" style="display:none" alt="">
+          </div>
+          <div style="flex:1">
+            <div style="font-weight:900">Аватар</div>
+            <div class="mini">Можно сменить на свою</div>
+          </div>
+          <input id="profAva" type="file" accept="image/*" hidden>
+          <button class="btn ghost" type="button" id="pickProfAva">Выбрать</button>
+        </div>
+
+        <div class="field" style="margin-top:12px">
+          <label>Никнейм</label>
+          <input id="profName" type="text">
+        </div>
+
+        <div class="field">
+          <label>Тема интерфейса</label>
+          <div class="selectTheme">
+            <button class="themeBtn" type="button" data-t="blue" title="Blue"></button>
+            <button class="themeBtn" type="button" data-t="purple" title="Purple"></button>
+            <button class="themeBtn" type="button" data-t="green" title="Green"></button>
+            <button class="themeBtn" type="button" data-t="red" title="Red"></button>
           </div>
         </div>
 
-        <div class="rules-wrap" id="rulesList"></div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" type="button" id="saveProfile">Сохранить</button>
+          <button class="btn ghost" type="button" id="wipe">Сбросить всё</button>
+        </div>
+
+        <div class="toast" id="profToast"></div>
+        <div class="hint">Локально: всё хранится в localStorage.</div>
       </div>
     </div>
-
-    <div class="footer">© MotoBox — BoxPvP</div>
   </div>
 
-  <script>
-    const btns = document.querySelectorAll(".tabbtn");
-    const panels = {
-      home: document.getElementById("tab-home"),
-      donate: document.getElementById("tab-donate"),
-      rules: document.getElementById("tab-rules")
-    };
+</div>
 
-    function openTab(name){
-      Object.values(panels).forEach(p => p.classList.remove("active"));
-      btns.forEach(b => b.classList.remove("active"));
-      document.getElementById("tab-"+name).classList.add("active");
-      document.querySelector('.tabbtn[data-tab="'+name+'"]').classList.add("active");
+<script>
+  // ---------- Storage ----------
+  const KEY = "telelike_v1";
+  const $ = (s)=>document.querySelector(s);
+
+  const store = {
+    load(){
+      try{ return JSON.parse(localStorage.getItem(KEY)) || { users:[], sessions:{current:null}, chats:[] }; }
+      catch{ return { users:[], sessions:{current:null}, chats:[] }; }
+    },
+    save(data){ localStorage.setItem(KEY, JSON.stringify(data)); },
+    wipe(){ localStorage.removeItem(KEY); }
+  };
+
+  function escapeHtml(str){
+    return String(str)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+  function nowTime(){
+    const d=new Date();
+    return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+  }
+  function toast(el,msg,type="ok"){
+    el.className="toast show "+type;
+    el.textContent=msg;
+    setTimeout(()=>el.classList.remove("show"),2200);
+  }
+  function setAva(imgEl,dataUrl){
+    if(dataUrl){
+      imgEl.src=dataUrl;
+      imgEl.style.display="block";
+    }else{
+      imgEl.removeAttribute("src");
+      imgEl.style.display="none";
     }
-    btns.forEach(b => b.addEventListener("click", ()=> openTab(b.dataset.tab)));
-
-    const copyBtn = document.getElementById("copyBtn");
-    const ipText = document.getElementById("ipText").innerText;
-    copyBtn.addEventListener("click", async () => {
-      try{
-        await navigator.clipboard.writeText(ipText);
-        copyBtn.textContent = "Скопировано!";
-        setTimeout(()=> copyBtn.textContent = "Скопировать", 1200);
-      }catch(e){
-        alert("Не получилось скопировать. Скопируй вручную: " + ipText);
-      }
+  }
+  function fileToDataURL(file){
+    return new Promise((res,rej)=>{
+      const r=new FileReader();
+      r.onload=()=>res(String(r.result));
+      r.onerror=rej;
+      r.readAsDataURL(file);
     });
+  }
 
-    const RULES = [
-      { id:"1.1", cat:"chat", title:"Оскорбления и токсичность", short:"Запрещены унижения, травля, токс в чате/личке по теме сервера.", text:"Нельзя оскорблять игроков/родных, провоцировать конфликты, устраивать травлю. Критика — ок, но без перехода на личности.", pun:"Мут 30–120 мин → мут 1–24 ч → бан 1–3 д." },
-      { id:"1.2", cat:"chat", title:"Спам, флуд, капс", short:"Спам, флуд, капс, копипасты и засорение чата запрещены.", text:"Не отправляй одинаковые сообщения, не флуди символами/эмодзи, не пиши КАПСОМ постоянно.", pun:"Мут 10–60 мин → мут 3–12 ч." },
-      { id:"1.3", cat:"chat", title:"Реклама и сторонние проекты", short:"Запрещена реклама серверов/каналов/магазинов без разрешения.", text:"Любая реклама (даже “го ко мне в дс”) — только с разрешения администрации.", pun:"Мут 6–24 ч → бан 1–7 д." },
-      { id:"1.4", cat:"chat", title:"Выдача себя за администрацию", short:"Нельзя притворяться стаффом, модером, “другом админа”.", text:"Запрещены ники/скины/сообщения, вводящие в заблуждение (например “Admin”, “Support”, “Owner”).", pun:"Предупреждение/кик → бан 1–7 д." },
+  // ---------- DOM ----------
+  const auth=$("#auth"), app=$("#app");
+  const tabLogin=$("#tabLogin"), tabReg=$("#tabReg");
+  const loginForm=$("#loginForm"), regForm=$("#regForm");
+  const loginToast=$("#loginToast"), regToast=$("#regToast");
 
-      { id:"2.1", cat:"game", title:"Багоюз и абуз механик", short:"Запрещено использовать баги/дырки ради преимущества.", text:"Если нашёл баг — сообщи администрации. Намеренный абуз = нарушение.", pun:"Откат/изъятие ресурсов + бан 1–7 д." },
-      { id:"2.2", cat:"game", title:"Фарм киллов/подставные бои", short:"Запрещён договорной фарм киллов/статов/ивентов.", text:"Нельзя подставляться с твинков/друзей ради наград, рейтинга и т.д.", pun:"Сброс наград/статов + бан 12 ч – 3 д." },
-      { id:"2.3", cat:"game", title:"Обход наказаний", short:"Запрещён обход мутов/банов через твинков/ВПН (если так сказали).", text:"Если наказали — отсиживаешь. Любой обход считается отдельным нарушением.", pun:"Бан твинков + продление бана (x2)." },
+  // register ava
+  const regAva=$("#regAva"), regAvaPrev=$("#regAvaPrev");
+  let regAvaData=null;
 
-      { id:"3.1", cat:"cheat", title:"Читы/клиенты/инжекты", short:"Запрещены читы, киллауры, триггеры, рейдж-скрипты и т.п.", text:"Любые программы/моды, дающие боевое преимущество, запрещены.", pun:"Бан 7–30 д. / перманент при тяжёлых случаях." },
-      { id:"3.2", cat:"cheat", title:"Макросы/автокликеры", short:"Запрещены автокликеры, макросы на ПВП, анти-афк, рекойл-скрипты.", text:"Если у тебя мышка с макросами — выключай. Любой автоклик = преимущество.", pun:"Бан 3–14 д. (при рецидиве — перманент)." },
-      { id:"3.3", cat:"cheat", title:"Подозрение/проверка", short:"Отказ от проверки/выход во время проверки — нарушение.", text:"Если тебя вызвали на проверку — сотрудничай. Лив во время проверки считается как отказ.", pun:"Бан 7–30 д." },
+  $("#pickRegAva").onclick=()=>regAva.click();
+  regAva.onchange=async (e)=>{
+    const f=e.target.files?.[0]; if(!f) return;
+    if(f.size>2.5*1024*1024){ toast(regToast,"Ава слишком большая (макс 2.5MB)","err"); regAva.value=""; return; }
+    regAvaData=await fileToDataURL(f);
+    setAva(regAvaPrev,regAvaData);
+  };
 
-      { id:"4.1", cat:"econ", title:"Дюп, дюп-цепочки, отмыв", short:"Дюп, хранение/передача надюпанного и “отмыв” запрещены.", text:"Нельзя дюпать, принимать надюпанное “по незнанию” тоже риск — лучше сообщи стаффу.", pun:"Удаление предметов/баланса + бан 7–30 д." },
-      { id:"4.2", cat:"econ", title:"Скам/обман в сделках", short:"Запрещён скам/обман при трейдах (если есть торговля).", text:"Если вы торгуете — используйте безопасные механики сервера. Обман через “подмену” считается скамом.", pun:"Возврат/компенсация по возможности + бан 1–7 д." }
-    ];
+  tabLogin.onclick=()=>{
+    tabLogin.classList.add("active");
+    tabReg.classList.remove("active");
+    loginForm.style.display="block";
+    regForm.style.display="none";
+  };
+  tabReg.onclick=()=>{
+    tabReg.classList.add("active");
+    tabLogin.classList.remove("active");
+    loginForm.style.display="none";
+    regForm.style.display="block";
+  };
 
-    const rulesList = document.getElementById("rulesList");
-    const searchInput = document.getElementById("ruleSearch");
-    const pills = document.querySelectorAll(".pill");
-    let activeFilter = "all";
-    let query = "";
+  $("#demo").onclick=()=>{
+    $("#loginUser").value="Tema";
+    $("#loginPass").value="1234";
+    // Create demo account only if missing
+    const data=store.load();
+    if(!data.users.find(u=>u.username.toLowerCase()==="tema")){
+      data.users.push({ id: crypto.randomUUID(), username:"Tema", pass:"1234", avatar:null, theme:"blue" });
+      store.save(data);
+    }
+    toast(loginToast,"Демо готово. Жми «Войти».","ok");
+  };
 
-    function escapeHtml(s){
-      return s.replace(/[&<>"']/g, (m)=>({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-      }[m]));
+  function validUsername(u){
+    if(u.length<2 || u.length>24) return false;
+    return /^[a-zA-Z0-9_а-яА-ЯёЁ]+$/.test(u);
+  }
+
+  // ---------- Register ----------
+  regForm.onsubmit=(e)=>{
+    e.preventDefault();
+    const data=store.load();
+    const username=$("#regUser").value.trim();
+    const pass=$("#regPass").value;
+
+    if(!validUsername(username)){ toast(regToast,"Ник: 2–24 символа (буквы/цифры/_).","err"); return; }
+    if(pass.length<4){ toast(regToast,"Пароль минимум 4 символа.","err"); return; }
+    if(data.users.some(u=>u.username.toLowerCase()===username.toLowerCase())){
+      toast(regToast,"Такой ник уже занят.","err"); return;
     }
 
-    function renderRules(){
-      rulesList.innerHTML = "";
-      const q = query.trim().toLowerCase();
+    const user={ id: crypto.randomUUID(), username, pass, avatar: regAvaData, theme:"blue" };
+    data.users.push(user);
+    data.sessions.current=user.id;
+    store.save(data);
 
-      const filtered = RULES.filter(r=>{
-        const okFilter = (activeFilter === "all") || (r.cat === activeFilter);
-        if(!okFilter) return false;
-        if(!q) return true;
-        const hay = (r.id+" "+r.title+" "+r.short+" "+r.text+" "+r.pun).toLowerCase();
-        return hay.includes(q);
-      });
+    toast(regToast,"Аккаунт создан ✅","ok");
+    boot();
+  };
 
-      filtered.forEach(r=>{
-        const el = document.createElement("details");
-        el.className = "rule";
-        el.innerHTML = `
-          <summary class="rule-head">
-            <div class="rule-left">
-              <div class="badge">${escapeHtml(r.id)}</div>
-              <div>
-                <div class="rule-title">${escapeHtml(r.title)}</div>
-                <div class="rule-meta">${escapeHtml(r.short)}</div>
-              </div>
+  // ---------- Login ----------
+  loginForm.onsubmit=(e)=>{
+    e.preventDefault();
+    const data=store.load();
+    const username=$("#loginUser").value.trim();
+    const pass=$("#loginPass").value;
+    const user=data.users.find(u=>u.username.toLowerCase()===username.toLowerCase());
+    if(!user || user.pass!==pass){ toast(loginToast,"Неверный ник или пароль.","err"); return; }
+    data.sessions.current=user.id;
+    store.save(data);
+    toast(loginToast,"Входим…","ok");
+    boot();
+  };
+
+  // ---------- App logic ----------
+  const meName=$("#meName"), meAva=$("#meAva");
+  const userSearch=$("#userSearch");
+  const list=$("#list");
+  const peerName=$("#peerName"), peerAva=$("#peerAva"), peerSub=$("#peerSub"), chatBadge=$("#chatBadge");
+  const msgs=$("#msgs");
+  const text=$("#text"), send=$("#send");
+
+  let activeChatId=null;
+
+  function getMe(data){
+    return data.users.find(u=>u.id===data.sessions.current) || null;
+  }
+
+  function getChatId(aId,bId){
+    // stable id for pair
+    return [aId,bId].sort().join("::");
+  }
+
+  function ensureChat(data, otherUserId){
+    const me=getMe(data);
+    const id=getChatId(me.id, otherUserId);
+    let chat=data.chats.find(c=>c.id===id);
+    if(!chat){
+      chat={ id, a:me.id, b:otherUserId, messages:[] };
+      data.chats.push(chat);
+      store.save(data);
+    }
+    return chat;
+  }
+
+  function getOther(data, chat){
+    const me=getMe(data);
+    const otherId = chat.a===me.id ? chat.b : chat.a;
+    return data.users.find(u=>u.id===otherId);
+  }
+
+  function renderList(){
+    const data=store.load();
+    const me=getMe(data);
+    if(!me) return;
+
+    // apply theme
+    document.documentElement.setAttribute("data-theme", me.theme || "blue");
+
+    meName.textContent=me.username;
+    setAva(meAva, me.avatar);
+
+    const q=userSearch.value.trim().toLowerCase();
+
+    // show users list (search results) excluding me
+    const users = data.users
+      .filter(u=>u.id!==me.id)
+      .filter(u=>!q || u.username.toLowerCase().includes(q))
+      .sort((x,y)=>x.username.localeCompare(y.username, "ru"));
+
+    list.innerHTML="";
+    if(users.length===0){
+      list.innerHTML=`<div style="padding:14px;color:var(--muted);font-size:13px;">Никого не найдено.</div>`;
+      return;
+    }
+
+    users.forEach(u=>{
+      // last message preview if chat exists
+      const chatId=getChatId(me.id,u.id);
+      const chat=data.chats.find(c=>c.id===chatId);
+      const last = chat?.messages?.at(-1)?.text || "Написать сообщение…";
+
+      const el=document.createElement("div");
+      el.className="item"+(activeChatId===chatId ? " active":"");
+      el.innerHTML=`
+        <div class="ava">${u.avatar?`<img src="${u.avatar}" alt="">`:``}</div>
+        <div class="info">
+          <div class="title">${escapeHtml(u.username)}</div>
+          <div class="last">${escapeHtml(last)}</div>
+        </div>
+      `;
+      el.onclick=()=>{
+        const data2=store.load();
+        ensureChat(data2,u.id);
+        activeChatId=chatId;
+        openChat();
+        renderList();
+      };
+      list.appendChild(el);
+    });
+  }
+
+  function openChat(){
+    const data=store.load();
+    const me=getMe(data);
+    if(!me || !activeChatId) return;
+
+    const chat=data.chats.find(c=>c.id===activeChatId);
+    if(!chat) return;
+
+    const other=getOther(data, chat);
+    if(!other) return;
+
+    peerName.textContent=other.username;
+    peerSub.textContent="online";
+    chatBadge.textContent="личный чат";
+    setAva(peerAva, other.avatar);
+
+    msgs.innerHTML="";
+    if(chat.messages.length===0){
+      msgs.innerHTML=`<div class="empty"><div><b style="color:var(--text)">Напиши первым</b><div style="margin-top:6px">Это личный чат с ${escapeHtml(other.username)}.</div></div></div>`;
+    }else{
+      chat.messages.forEach(m=>{
+        const isMe=m.from===me.id;
+        const row=document.createElement("div");
+        row.className="rowMsg"+(isMe?" me":"");
+        const fromName = isMe ? me.username : other.username;
+        row.innerHTML=`
+          <div class="bubble">
+            ${escapeHtml(m.text)}
+            <div class="meta">
+              <span>${escapeHtml(fromName)}</span>
+              <span>${escapeHtml(m.time)}</span>
             </div>
-            <div class="muted" style="font-weight:900;">▼</div>
-          </summary>
-          <div class="rule-body">
-            <div>${escapeHtml(r.text)}</div>
-            <div class="pun">Наказание: ${escapeHtml(r.pun)}</div>
           </div>
         `;
-        rulesList.appendChild(el);
+        msgs.appendChild(row);
       });
     }
+    text.disabled=false;
+    send.disabled=false;
+    msgs.scrollTop=msgs.scrollHeight;
+  }
 
-    pills.forEach(p=>{
-      p.addEventListener("click", ()=>{
-        pills.forEach(x=>x.classList.remove("active"));
-        p.classList.add("active");
-        activeFilter = p.dataset.filter;
-        renderRules();
-      });
-    });
+  function sendMsg(){
+    const t=text.value.trim();
+    if(!t || !activeChatId) return;
 
-    searchInput.addEventListener("input", (e)=>{
-      query = e.target.value;
-      renderRules();
-    });
+    const data=store.load();
+    const me=getMe(data);
+    const chat=data.chats.find(c=>c.id===activeChatId);
+    if(!chat) return;
 
-    renderRules();
+    chat.messages.push({ from: me.id, text: t, time: nowTime() });
+    store.save(data);
 
-    /* Server status */
-    const lamp = document.getElementById("lamp");
-    const statusText = document.getElementById("statusText");
-    const playersNow = document.getElementById("playersNow");
-    const playersMax = document.getElementById("playersMax");
+    text.value="";
+    openChat();
+    renderList();
+  }
 
-    const STATUS_HOST = "f6.joinserver.xyz";
-    const STATUS_PORT = 25909;
-
-    async function loadStatus(){
-      try{
-        const url = `https://api.mcsrvstat.us/3/${encodeURIComponent(STATUS_HOST)}:${STATUS_PORT}`;
-        const res = await fetch(url, { cache: "no-store" });
-        const data = await res.json();
-
-        if(data && data.online){
-          lamp.classList.add("on");
-          lamp.classList.remove("off");
-          statusText.textContent = "Сервер онлайн";
-          playersNow.textContent = (data.players && typeof data.players.online === "number") ? data.players.online : "—";
-          playersMax.textContent = "300";
-        }else{
-          lamp.classList.add("off");
-          lamp.classList.remove("on");
-          statusText.textContent = "Сервер оффлайн";
-          playersNow.textContent = "0";
-          playersMax.textContent = "300";
-        }
-      }catch(e){
-        lamp.classList.add("off");
-        lamp.classList.remove("on");
-        statusText.textContent = "Статус недоступен";
-        playersNow.textContent = "—";
-        playersMax.textContent = "300";
-      }
+  send.onclick=sendMsg;
+  text.addEventListener("keydown",(e)=>{
+    if(e.key==="Enter" && !e.shiftKey){
+      e.preventDefault();
+      sendMsg();
     }
+  });
 
-    loadStatus();
-    setInterval(loadStatus, 30000);
-  </script>
+  userSearch.oninput=renderList;
 
+  $("#newChat").onclick=()=>{
+    userSearch.focus();
+    userSearch.value="";
+    renderList();
+  };
+
+  $("#logout").onclick=()=>{
+    const data=store.load();
+    data.sessions.current=null;
+    store.save(data);
+    activeChatId=null;
+    boot();
+  };
+
+  // ---------- Profile modal ----------
+  const modalBg=$("#modalBg");
+  const profAva=$("#profAva");
+  const profAvaPrev=$("#profAvaPrev");
+  const profName=$("#profName");
+  const profToast=$("#profToast");
+  let profAvaData=null;
+
+  $("#openProfile").onclick=()=>{
+    const data=store.load();
+    const me=getMe(data);
+    profName.value=me.username;
+    profAvaData=me.avatar || null;
+    setAva(profAvaPrev, profAvaData);
+    modalBg.style.display="block";
+  };
+  $("#closeModal").onclick=()=>modalBg.style.display="none";
+  modalBg.onclick=(e)=>{ if(e.target===modalBg) modalBg.style.display="none"; };
+
+  $("#pickProfAva").onclick=()=>profAva.click();
+  profAva.onchange=async (e)=>{
+    const f=e.target.files?.[0]; if(!f) return;
+    if(f.size>2.5*1024*1024){ toast(profToast,"Ава слишком большая (макс 2.5MB)","err"); profAva.value=""; return; }
+    profAvaData=await fileToDataURL(f);
+    setAva(profAvaPrev, profAvaData);
+  };
+
+  document.querySelectorAll(".themeBtn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      // preview in modal
+      const t=btn.getAttribute("data-t");
+      document.documentElement.setAttribute("data-theme", t);
+      // store temp choice in dataset
+      modalBg.dataset.theme=t;
+      toast(profToast, "Тема выбрана: "+t, "ok");
+    });
+  });
+
+  $("#saveProfile").onclick=()=>{
+    const data=store.load();
+    const me=getMe(data);
+    const newName=profName.value.trim();
+
+    if(!validUsername(newName)){ toast(profToast,"Ник: 2–24 символа (буквы/цифры/_).","err"); return; }
+
+    // if name changed, must be unique
+    const conflict=data.users.find(u=>u.username.toLowerCase()===newName.toLowerCase() && u.id!==me.id);
+    if(conflict){ toast(profToast,"Такой ник уже занят.","err"); return; }
+
+    me.username=newName;
+    me.avatar=profAvaData;
+    const chosenTheme = modalBg.dataset.theme;
+    if(chosenTheme) me.theme=chosenTheme;
+
+    store.save(data);
+    toast(profToast,"Сохранено ✅","ok");
+    modalBg.style.display="none";
+    boot();
+  };
+
+  $("#wipe").onclick=()=>{
+    store.wipe();
+    location.reload();
+  };
+
+  // ---------- Boot ----------
+  function boot(){
+    const data=store.load();
+    const me=getMe(data);
+
+    if(me){
+      auth.style.display="none";
+      app.style.display="grid";
+      document.documentElement.setAttribute("data-theme", me.theme || "blue");
+      renderList();
+      if(activeChatId) openChat();
+    }else{
+      auth.style.display="grid";
+      app.style.display="none";
+    }
+  }
+
+  boot();
+</script>
 </body>
 </html>
