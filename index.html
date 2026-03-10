@@ -1,40 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Тест синхронизации</title>
+  <meta charset="UTF-8" />
+  <title>Проверка синхронизации</title>
 </head>
-
 <body style="font-family:Arial;text-align:center;margin-top:120px;">
 
-<h1>Тест синхронизации сайта</h1>
+  <h1>Проверка синхронизации</h1>
+  <h2 id="status">Загрузка...</h2>
+  <p id="debug">...</p>
 
-<h2 id="status">Загрузка...</h2>
+  <script>
+    async function loadState() {
+      try {
+        const response = await fetch("./state.json?t=" + Date.now(), {
+          cache: "no-store"
+        });
 
-<script>
+        document.getElementById("debug").innerText =
+          "HTTP: " + response.status + " | URL: " + response.url;
 
-let state={}
+        if (!response.ok) {
+          document.getElementById("status").innerText = "Ошибка HTTP " + response.status;
+          return;
+        }
 
-async function loadState(){
+        const state = await response.json();
 
-try{
+        document.getElementById("status").innerText = state.mode || "Нет mode";
+      } catch (e) {
+        document.getElementById("status").innerText = "Ошибка загрузки";
+        document.getElementById("debug").innerText = String(e);
+      }
+    }
 
-let r=await fetch("state.json?"+Date.now())
-state=await r.json()
-
-document.getElementById("status").innerText=state.mode
-
-}catch(e){
-
-document.getElementById("status").innerText="Ошибка загрузки"
-
-}
-
-}
-
-setInterval(loadState,1000)
-
-</script>
+    loadState();
+    setInterval(loadState, 1000);
+  </script>
 
 </body>
 </html>
